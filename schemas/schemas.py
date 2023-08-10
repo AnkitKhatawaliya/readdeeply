@@ -7,6 +7,8 @@ class StudentCreate(BaseModel):
     gender: str
     parent_name: str
     parent_mobile: str
+    student_password: str  # New field
+    parent_password: str   # New field
 
     class Config:
         orm_mode = True
@@ -19,6 +21,7 @@ class TeacherCreate(BaseModel):
     primaryClass: str
     subject: str
     phoneNumber: str
+    password: str  # New field
 
     class Config:
         orm_mode = True
@@ -41,7 +44,7 @@ class TimetableCreate(BaseModel):
 
 class EventAnnouncementCreate(BaseModel):
     date: str
-    type: str
+    mode: str
     title: str
     description: str
 
