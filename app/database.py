@@ -2,25 +2,24 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 # Global variables to store the connection and cursor objects
-conn = psycopg2.connect(
-    host='localhost',
-    database='deploy',
-    user='postgres',
-    password='Post@2606',
-    cursor_factory=RealDictCursor
-)
-
-cursor = conn.cursor()
-print("Connection was successful.")
-#
-# # Global variables to store the connection and cursor objects
-# dsn = "postgres://ankitkmr1709:PAOscY8uf2qE@ep-flat-bread-71003837.ap-southeast-1.aws.neon.tech/neondb"
-# conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+# conn = psycopg2.connect(
+#     host='localhost',
+#     database='deploy',
+#     user='postgres',
+#     password='Post@2606',
+#     cursor_factory=RealDictCursor
+# )
 #
 # cursor = conn.cursor()
 # print("Connection was successful.")
-#
-# # ... (rest of your code)
+
+# Global variables to store the connection and cursor objects
+dsn = "postgres://ankitkmr1709:PAOscY8uf2qE@ep-flat-bread-71003837.ap-southeast-1.aws.neon.tech/neondb"
+conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+
+cursor = conn.cursor()
+print("Connection was successful.")
+
 
 def table_exists(table_name):
     # Check if a table exists in the database
