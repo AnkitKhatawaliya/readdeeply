@@ -112,3 +112,35 @@ def db_fetch_students_from_class(class_number: str, section: str):
         return students  # Return list of students with specified columns
     except Exception as e:
         return {"error": str(e)}  # Return error message
+def db_fetch_students_from_class(class_number: str, section: str):
+    try:
+        table_name = f"class{class_number}{section}"
+        # List the specific columns you want to fetch
+        columns_to_fetch = [
+            "roll_number",
+            "adm_no",
+            "name",
+            "password",
+            "dob",
+            "gender",
+            "parent_name",
+            "par_con",
+            "parent_password"
+        ]
+        columns_str = ", ".join(columns_to_fetch)
+
+        query = f"SELECT {columns_str} FROM {table_name}"
+        cursor.execute(query)
+        students = cursor.fetchall()
+        return students  # Return list of students with specified columns
+    except Exception as e:
+        return {"error": str(e)}  # Return error message
+
+
+def db_table_exists(table_name: str):
+    try:
+        query = f"SELECT 1 FROM {table_name} LIMIT 1"
+        cursor.execute(query)
+        return True
+    except:
+        return False

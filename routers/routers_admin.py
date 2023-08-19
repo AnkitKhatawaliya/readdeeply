@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable
 from database import db_create_class_table, db_fetch_students_from_class, db_add_student_to_class, db_delete_student_from_class
+from database import db_table_exists
 from typing import List
 
 router = APIRouter()
@@ -31,7 +32,11 @@ def delete_student_from_class(class_number: str, section: str, roll_number: int)
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Student deletion failed")
 
+
 @router.get("/fetchstudents/{class_number}/{section}", response_model=List[ClassTable])
 def fetch_students_from_class(class_number: str, section: str):
+    if not db_table_exists(f"class{class_number}{section}"):
+        raise HTTPException(status_code=404, detail="Table not found")
+
     students = db_fetch_students_from_class(class_number, section)
     return students
