@@ -1,6 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from schemas.schemas import ClassTable
+from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 
 # conn = psycopg2.connect(
 #     host='localhost',
@@ -32,9 +32,11 @@ def db_create_class_table(class_number: str, section: str):
             gender VARCHAR(10),
             parent_name VARCHAR(255),
             par_con VARCHAR(255),
-            parent_password VARCHAR(255)
+            parent_password VARCHAR(255),
+            total_att INTEGER DEFAULT 0
         )
         """
+
         cursor.execute(query)
         conn.commit()
         return {"message": f"Table {table_name} created successfully"}  # Return success message
@@ -46,8 +48,8 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
-        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password, total_att)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
             student.adm_no,
@@ -57,8 +59,10 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
             student.gender,
             student.parent_name,
             student.par_con,
-            student.parent_password
+            student.parent_password,
+            0  # Default value for total_att
         )
+
         cursor.execute(query, values)
         conn.commit()
         return {"message": "Student added successfully"}  # Return success message
@@ -102,11 +106,13 @@ def db_fetch_students_from_class(class_number: str, section: str):
             "gender",
             "parent_name",
             "par_con",
-            "parent_password"
+            "parent_password",
+            "total_att"  # Add "total_att" to columns list
         ]
         columns_str = ", ".join(columns_to_fetch)
 
         query = f"SELECT {columns_str} FROM {table_name}"
+
         cursor.execute(query)
         students = cursor.fetchall()
         return students  # Return list of students with specified columns
@@ -125,9 +131,12 @@ def db_fetch_students_from_class(class_number: str, section: str):
             "gender",
             "parent_name",
             "par_con",
-            "parent_password"
+            "parent_password",
+            "total_att"  # Add "total_att" to columns list
         ]
         columns_str = ", ".join(columns_to_fetch)
+
+        query = f"SELECT {columns_str} FROM {table_name}"
 
         query = f"SELECT {columns_str} FROM {table_name}"
         cursor.execute(query)
@@ -144,3 +153,181 @@ def db_table_exists(table_name: str):
         return True
     except:
         return False
+
+def db_create_teacher_records_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS Teacher_records (
+            ID SERIAL PRIMARY KEY,
+            Name VARCHAR(255),
+            Primary_class VARCHAR(255),
+            Subject VARCHAR(255),
+            Date_of_joining VARCHAR(10),
+            Degree VARCHAR(255),
+            Contact_number VARCHAR(20)
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "Teacher_records table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_insert_teacher_record(teacher: Teacher):
+    try:
+        query = """
+        INSERT INTO Teacher_records (Name, Primary_class, Subject, Date_of_joining, Degree, Contact_number)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        values = (
+            teacher.name,
+            teacher.primary_class,
+            teacher.subject,
+            teacher.date_of_joining,
+            teacher.degree,
+            teacher.contact_number
+        )
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Teacher record added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_fetch_all_teacher_records():
+    try:
+        query = "SELECT * FROM Teacher_records"
+        cursor.execute(query)
+        teachers = cursor.fetchall()
+        return teachers
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_delete_teacher_record(teacher_id: int):
+    try:
+        query = "DELETE FROM Teacher_records WHERE ID = %s"
+        cursor.execute(query, (teacher_id,))
+        conn.commit()
+        return {"message": "Teacher record deleted successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def db_create_timetable_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS Time_table (
+            Sr_no SERIAL PRIMARY KEY,
+            Standard VARCHAR(255),
+            Section VARCHAR(255),
+            Weekday VARCHAR(255),
+            Lect_1 VARCHAR(255),
+            Lect_2 VARCHAR(255),
+            Lect_3 VARCHAR(255),
+            Lect_4 VARCHAR(255),
+            Lect_5 VARCHAR(255),
+            Lect_6 VARCHAR(255),
+            Lect_7 VARCHAR(255),
+            Lect_8 VARCHAR(255)
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "Time_table table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_add_timetable_record(timetable: Timetable):
+    try:
+        query = """
+        INSERT INTO Time_table (Standard, Section, Weekday, Lect_1, Lect_2, Lect_3, Lect_4, Lect_5, Lect_6, Lect_7, Lect_8)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (
+            timetable.standard,
+            timetable.section,
+            timetable.weekday,
+            timetable.lect_1,
+            timetable.lect_2,
+            timetable.lect_3,
+            timetable.lect_4,
+            timetable.lect_5,
+            timetable.lect_6,
+            timetable.lect_7,
+            timetable.lect_8
+        )
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Timetable record added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_fetch_all_timetable_records():
+    try:
+        query = "SELECT * FROM Time_table"
+        cursor.execute(query)
+        timetables = cursor.fetchall()
+        return timetables
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_delete_timetable_record(sr_no: int):
+    try:
+        query = "DELETE FROM Time_table WHERE Sr_no = %s"
+        cursor.execute(query, (sr_no,))
+        conn.commit()
+        return {"message": "Timetable record deleted successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_create_calendar_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS Calendar (
+            Sr_no SERIAL PRIMARY KEY,
+            Date VARCHAR(10),
+            Hook VARCHAR(255),
+            Title VARCHAR(255),
+            Content TEXT
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "Calendar table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_add_calendar_event(event: CalendarEvent):
+    try:
+        query = """
+        INSERT INTO Calendar (Date, Hook, Title, Content)
+        VALUES (%s, %s, %s, %s)
+        """
+        values = (
+            event.date,
+            event.hook,
+            event.title,
+            event.content
+        )
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Calendar event added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_fetch_all_calendar_events():
+    try:
+        query = "SELECT * FROM Calendar"
+        cursor.execute(query)
+        events = cursor.fetchall()
+        return events
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_delete_calendar_event(sr_no: int):
+    try:
+        query = "DELETE FROM Calendar WHERE Sr_no = %s"
+        cursor.execute(query, (sr_no,))
+        conn.commit()
+        return {"message": "Calendar event deleted successfully"}
+    except Exception as e:
+        return {"error": str(e)}
