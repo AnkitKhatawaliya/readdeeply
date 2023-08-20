@@ -25,6 +25,7 @@ class Teacher(BaseModel):
     degree: str
     contact_number: str
     other_classes: str  # New column added
+    passw: str  # New column added
 
     class Config:
         orm_mode = True
