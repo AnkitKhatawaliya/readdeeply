@@ -47,6 +47,8 @@ def fetch_students_from_class(class_number: str, section: str):
     students = db_fetch_students_from_class(class_number, section)
     return students
 
+
+
 @router.post("/createteacherrecordstable", status_code=status.HTTP_201_CREATED)
 def create_teacher_records_table():
     response = db_create_teacher_records_table()
@@ -72,7 +74,6 @@ def delete_teacher_record(teacher_id: int):
     if "error" in response:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Teacher record deleted successfully."}
-
 
 @router.post("/createtimetabletable", status_code=status.HTTP_201_CREATED)
 def create_timetable_table():

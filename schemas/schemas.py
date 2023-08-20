@@ -16,7 +16,6 @@ class ClassTable(BaseModel):
     class Config:
         orm_mode = True
 
-
 class Teacher(BaseModel):
     id: int
     name: str
@@ -25,9 +24,11 @@ class Teacher(BaseModel):
     date_of_joining: str
     degree: str
     contact_number: str
+    other_classes: str  # New column added
 
     class Config:
         orm_mode = True
+
 
 class Timetable(BaseModel):
     sr_no: int

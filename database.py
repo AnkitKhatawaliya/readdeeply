@@ -153,7 +153,6 @@ def db_table_exists(table_name: str):
         return True
     except:
         return False
-
 def db_create_teacher_records_table():
     try:
         query = """
@@ -164,7 +163,8 @@ def db_create_teacher_records_table():
             Subject VARCHAR(255),
             Date_of_joining VARCHAR(10),
             Degree VARCHAR(255),
-            Contact_number VARCHAR(20)
+            Contact_number VARCHAR(20),
+            Other_classes VARCHAR(40)  -- New column added
         )
         """
         cursor.execute(query)
@@ -176,8 +176,8 @@ def db_create_teacher_records_table():
 def db_insert_teacher_record(teacher: Teacher):
     try:
         query = """
-        INSERT INTO Teacher_records (Name, Primary_class, Subject, Date_of_joining, Degree, Contact_number)
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO Teacher_records (Name, Primary_class, Subject, Date_of_joining, Degree, Contact_number, Other_classes)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)  -- New column added
         """
         values = (
             teacher.name,
@@ -185,13 +185,15 @@ def db_insert_teacher_record(teacher: Teacher):
             teacher.subject,
             teacher.date_of_joining,
             teacher.degree,
-            teacher.contact_number
+            teacher.contact_number,
+            teacher.other_classes  # New column value
         )
         cursor.execute(query, values)
         conn.commit()
         return {"message": "Teacher record added successfully"}
     except Exception as e:
         return {"error": str(e)}
+
 
 def db_fetch_all_teacher_records():
     try:
