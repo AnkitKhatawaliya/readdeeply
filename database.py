@@ -339,3 +339,22 @@ def db_delete_calendar_event(sr_no: int):
         return {"message": "Calendar event deleted successfully"}
     except Exception as e:
         return {"error": str(e)}
+
+#Teacher methods
+
+def db_validate_teacher_credentials(teacher_id: str, password: str):
+    try:
+        query = "SELECT * FROM Teacher_records WHERE ID = %s"
+        cursor.execute(query, (teacher_id,))
+        teacher = cursor.fetchone()
+
+        if teacher is None:
+            return None  # Teacher not found
+        if teacher["passw"] == password:
+            return teacher  # Credentials valid
+        else:
+            return False  # Incorrect password
+
+    except Exception as e:
+        return True
+

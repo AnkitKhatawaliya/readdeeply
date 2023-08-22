@@ -57,3 +57,7 @@ class CalendarEvent(BaseModel):
 
     class Config:
         orm_mode = True
+
+#
+# response_message = f"Authenticated as {result['name']} (ID: {result['id']})"
+# return {"message": response_message}
