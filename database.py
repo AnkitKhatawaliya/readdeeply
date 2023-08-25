@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
+from datetime import datetime
 
 # conn = psycopg2.connect(
 #     host='localhost',
@@ -358,3 +359,28 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
     except Exception as e:
         return True
 
+def db_fetch_students_from_class(standard: str, section: str):
+    try:
+        table_name = f"class{standard}{section}"
+        query = f"SELECT roll_number, name FROM {table_name}"
+        cursor.execute(query)
+        students = cursor.fetchall()
+        return students  # Return list of students' roll_number and name
+    except Exception as e:
+        return {"error": str(e)}  # Return error message
+
+
+def db_mark_student_attendance(standard: str, section: str, attendance_data: dict):
+    try:
+        table_name = f"class{standard}{section}"
+        current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
+        attendance_column = f"att{current_date}"  # New column name
+
+        for student_roll_number, status in attendance_data.items():
+            query = f"UPDATE {table_name} SET {attendance_column} = %s WHERE roll_number = %s"
+            cursor.execute(query, (status, student_roll_number))
+            conn.commit()
+
+        return {"message": "Attendance marked successfully"}
+    except Exception as e:
+        return {"error": str(e)}
