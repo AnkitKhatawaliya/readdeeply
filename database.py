@@ -379,6 +379,12 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
         for student_roll_number, status in attendance_data.items():
             query = f"UPDATE {table_name} SET {attendance_column} = %s WHERE roll_number = %s"
             cursor.execute(query, (status, student_roll_number))
+
+            if status == "present":
+                # Increment total_att by 1 for students marked as present
+                cursor.execute(f"UPDATE {table_name} SET total_att = total_att + 1 WHERE roll_number = %s",
+                               (student_roll_number,))
+
             conn.commit()
 
         return {"message": "Attendance marked successfully"}
