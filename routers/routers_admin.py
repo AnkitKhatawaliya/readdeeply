@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
-from database import db_create_class_table, db_fetch_students_from_class, db_add_student_to_class, db_delete_student_from_class
+from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, db_delete_student_from_class
 from database import db_table_exists
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
@@ -8,6 +8,7 @@ from database import db_create_calendar_table , db_fetch_all_calendar_events , d
 from typing import List
 
 router = APIRouter()
+
 
 
 @router.post("/createclasstable", status_code=status.HTTP_201_CREATED)
@@ -18,6 +19,7 @@ def create_class_table(class_number: str, section: str):
     return {"Table ":"Created successfully."}
 
 
+
 @router.post("/addstudent/{class_number}/{section}", status_code=status.HTTP_201_CREATED)
 def add_student_to_class(class_number: str, section: str, student: ClassTable):
     response = db_add_student_to_class(class_number, section, student)
@@ -25,7 +27,6 @@ def add_student_to_class(class_number: str, section: str, student: ClassTable):
         return {"message": "Student added successfully"}
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Student addition failed")
-
 
 @router.delete("/deletestudent/{class_number}/{section}/{roll_number}", status_code=status.HTTP_200_OK)
 def delete_student_from_class(class_number: str, section: str, roll_number: int):
@@ -35,16 +36,10 @@ def delete_student_from_class(class_number: str, section: str, roll_number: int)
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Student deletion failed")
 
-
 @router.get("/fetchstudents/{class_number}/{section}", response_model=List[ClassTable])
 def fetch_students_from_class(class_number: str, section: str):
-    if not db_table_exists(f"class{class_number}{section}"):
-        raise HTTPException(status_code=404, detail="Table not found")
-
-    students = db_fetch_students_from_class(class_number, section)
+    students = db_fetch_students_from_class_admin(class_number, section)
     return students
-
-
 
 @router.post("/createteacherrecordstable", status_code=status.HTTP_201_CREATED)
 def create_teacher_records_table():

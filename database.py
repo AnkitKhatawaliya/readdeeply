@@ -5,7 +5,7 @@ from datetime import datetime
 
 # conn = psycopg2.connect(
 #     host='localhost',
-#     database='deploy',
+#     database='wow',
 #     user='postgres',
 #     password='Post@2606',
 #     cursor_factory=RealDictCursor
@@ -14,17 +14,12 @@ from datetime import datetime
 # cursor = conn.cursor()
 # print("Connection was successful.")
 
-#
-# dsn = "postgres://khatawaliya:UgFzx1WKBAZCP3sXBkdRV3mAQTTcEgaW@dpg-cjktn3fv9s6c739emdk0-a.singapore-postgres.render.com/school_m6cu"
-# conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
-# cursor = conn.cursor()
-# print("Connection was successful.")
 
-
-dsn = "postgres://ankitkmr1709:4KIREFXGLg9b@ep-crimson-truth-74502636.us-east-2.aws.neon.tech/neondb"
+dsn = "postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-hidden-fire-57816100.us-east-2.aws.neon.tech/neondb"
 conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
 cursor = conn.cursor()
 print("Connection was successful.")
+
 
 def db_create_class_table(class_number: str, section: str):
     try:
@@ -39,11 +34,9 @@ def db_create_class_table(class_number: str, section: str):
             gender VARCHAR(10),
             parent_name VARCHAR(255),
             par_con VARCHAR(255),
-            parent_password VARCHAR(255),
-            total_att INTEGER DEFAULT 0
+            parent_password VARCHAR(255)
         )
         """
-
         cursor.execute(query)
         conn.commit()
         return {"message": f"Table {table_name} created successfully"}  # Return success message
@@ -55,8 +48,8 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
-        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password, totl_att)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
             student.adm_no,
@@ -66,10 +59,8 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
             student.gender,
             student.parent_name,
             student.par_con,
-            student.parent_password,
-            0  # Default value for total_att (no need to use student.total_att)
+            student.parent_password
         )
-
         cursor.execute(query, values)
         conn.commit()
         return {"message": "Student added successfully"}  # Return success message
@@ -89,7 +80,7 @@ def db_delete_student_from_class(class_number: str, section: str, roll_number: i
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
-def db_fetch_students_from_class(class_number: str, section: str):
+def db_fetch_students_from_class_admin(class_number: str, section: str):
     try:
         table_name = f"class{class_number}{section}"
         query = f"SELECT * FROM {table_name}"
@@ -113,37 +104,9 @@ def db_fetch_students_from_class(class_number: str, section: str):
             "gender",
             "parent_name",
             "par_con",
-            "parent_password",
-            "total_att"  # Add "total_att" to columns list
+            "parent_password"
         ]
         columns_str = ", ".join(columns_to_fetch)
-
-        query = f"SELECT {columns_str} FROM {table_name}"
-
-        cursor.execute(query)
-        students = cursor.fetchall()
-        return students  # Return list of students with specified columns
-    except Exception as e:
-        return {"error": str(e)}  # Return error message
-def db_fetch_students_from_class(class_number: str, section: str):
-    try:
-        table_name = f"class{class_number}{section}"
-        # List the specific columns you want to fetch
-        columns_to_fetch = [
-            "roll_number",
-            "adm_no",
-            "name",
-            "password",
-            "dob",
-            "gender",
-            "parent_name",
-            "par_con",
-            "parent_password",
-            "total_att"  # Add "total_att" to columns list
-        ]
-        columns_str = ", ".join(columns_to_fetch)
-
-        query = f"SELECT {columns_str} FROM {table_name}"
 
         query = f"SELECT {columns_str} FROM {table_name}"
         cursor.execute(query)
@@ -151,6 +114,7 @@ def db_fetch_students_from_class(class_number: str, section: str):
         return students  # Return list of students with specified columns
     except Exception as e:
         return {"error": str(e)}  # Return error message
+
 
 
 def db_table_exists(table_name: str):
@@ -376,23 +340,3 @@ def db_fetch_students_from_class(standard: str, section: str):
         return {"error": str(e)}  # Return error message
 
 
-def db_mark_student_attendance(standard: str, section: str, attendance_data: dict):
-    try:
-        table_name = f"class{standard}{section}"
-        current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
-        attendance_column = f"att{current_date}"  # New column name
-
-        for student_roll_number, status in attendance_data.items():
-            query = f"UPDATE {table_name} SET {attendance_column} = %s WHERE roll_number = %s"
-            cursor.execute(query, (status, student_roll_number))
-
-            if status == "present":
-                # Increment total_att by 1 for students marked as present
-                cursor.execute(f"UPDATE {table_name} SET total_att = total_att + 1 WHERE roll_number = %s",
-                               (student_roll_number,))
-
-            conn.commit()
-
-        return {"message": "Attendance marked successfully"}
-    except Exception as e:
-        return {"error": str(e)}

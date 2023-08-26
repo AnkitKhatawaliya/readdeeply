@@ -1,3 +1,4 @@
+
 from pydantic import BaseModel
 
 
@@ -11,10 +12,10 @@ class ClassTable(BaseModel):
     parent_name: str
     par_con: str
     parent_password: str
-    total_att: int =0 # Add the "total_att" field
 
     class Config:
         orm_mode = True
+
 
 class Teacher(BaseModel):
     id: int
@@ -58,6 +59,3 @@ class CalendarEvent(BaseModel):
     class Config:
         orm_mode = True
 
-#
-# response_message = f"Authenticated as {result['name']} (ID: {result['id']})"
-# return {"message": response_message}
