@@ -14,17 +14,17 @@ from datetime import datetime
 # cursor = conn.cursor()
 # print("Connection was successful.")
 
-
-dsn = "postgres://khatawaliya:UgFzx1WKBAZCP3sXBkdRV3mAQTTcEgaW@dpg-cjktn3fv9s6c739emdk0-a.singapore-postgres.render.com/school_m6cu"
-conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
-cursor = conn.cursor()
-print("Connection was successful.")
-
 #
-# dsn = "postgres://ankitkmr1709:PAOscY8uf2qE@ep-flat-bread-71003837.ap-southeast-1.aws.neon.tech/neondb"
+# dsn = "postgres://khatawaliya:UgFzx1WKBAZCP3sXBkdRV3mAQTTcEgaW@dpg-cjktn3fv9s6c739emdk0-a.singapore-postgres.render.com/school_m6cu"
 # conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
 # cursor = conn.cursor()
 # print("Connection was successful.")
+
+
+dsn = "postgres://ankitkmr1709:4KIREFXGLg9b@ep-crimson-truth-74502636.us-east-2.aws.neon.tech/neondb"
+conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
+cursor = conn.cursor()
+print("Connection was successful.")
 
 def db_create_class_table(class_number: str, section: str):
     try:
