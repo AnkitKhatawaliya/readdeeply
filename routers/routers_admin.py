@@ -18,11 +18,8 @@ def create_class_table(class_number: str, section: str):
     return {"Table ":"Created successfully."}
 
 
-
 @router.post("/addstudent/{class_number}/{section}", status_code=status.HTTP_201_CREATED)
 def add_student_to_class(class_number: str, section: str, student: ClassTable):
-    # Set "total_att" to 0 for the new student
-    student.total_att = 0
     response = db_add_student_to_class(class_number, section, student)
     if response:
         return {"message": "Student added successfully"}

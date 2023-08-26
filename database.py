@@ -49,7 +49,7 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
-        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password, total_att)
+        INSERT INTO {table_name} (adm_no, name, password, dob, gender, parent_name, par_con, parent_password, totl_att)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
@@ -61,7 +61,7 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
             student.parent_name,
             student.par_con,
             student.parent_password,
-            0  # Default value for total_att
+            0  # Default value for total_att (no need to use student.total_att)
         )
 
         cursor.execute(query, values)

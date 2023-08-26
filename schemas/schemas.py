@@ -11,7 +11,7 @@ class ClassTable(BaseModel):
     parent_name: str
     par_con: str
     parent_password: str
-    total_att: int  # Add the "total_att" field
+    total_att: int =0 # Add the "total_att" field
 
     class Config:
         orm_mode = True
