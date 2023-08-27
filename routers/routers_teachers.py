@@ -70,7 +70,7 @@ def get_attendance(standard: str, section: str):
     return attendance_records
 
 
-@app.get("/get_marks/{standard}/{section}")
+@router.get("/get_marks/{standard}/{section}")
 def get_marks(standard: str, section: str):
     marks_records = db_get_marks(standard, section)
     if isinstance(marks_records, dict) and "error" in marks_records:
