@@ -2,7 +2,9 @@ from fastapi import APIRouter, HTTPException , status
 from database import db_validate_teacher_credentials
 from database import db_table_exists , db_fetch_students_from_class
 from database import db_mark_student_attendance
-from typing import List
+from typing import List, Dict, Union
+from database import db_add_marks
+
 
 router = APIRouter()
 
@@ -45,5 +47,17 @@ def mark_attendance(
 
     # Mark student attendance
     response = db_mark_student_attendance(standard, section, attendance_data)
+
+    return response
+
+
+@router.post("/add_marks/{standard}/{section}/{subject}")
+def add_marks(standard: str, section: str, subject: str, marks_data: List[Dict[str, Union[str, int]]]):
+    if not db_table_exists(f"class{standard}{section}"):
+        raise HTTPException(status_code=404, detail="Class records not found")
+
+    response = db_add_marks(standard, section, subject, marks_data)
+    if "error" in response:
+        raise HTTPException(status_code=500, detail="Error adding marks to the database")
 
     return response

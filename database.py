@@ -360,3 +360,26 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
     except Exception as e:
         return {"error": str(e)}
 
+# database.py
+
+def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
+    try:
+        table_name = f"class{standard}{section}"
+        current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
+        marks_column = f"marks_{subject}_{current_date}"  # New column name
+
+        # Add the new column if it doesn't exist
+        add_column_query = f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS {marks_column} INT"
+        cursor.execute(add_column_query)
+        conn.commit()
+
+        for entry in marks_data:
+            roll_number = entry["roll_number"]
+            marks = entry["marks"]
+            update_query = f"UPDATE {table_name} SET {marks_column} = %s WHERE roll_number = %s"
+            cursor.execute(update_query, (marks, roll_number))
+        conn.commit()
+
+        return {"message": "Marks added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
