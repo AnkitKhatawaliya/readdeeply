@@ -342,14 +342,18 @@ def db_fetch_students_from_class(standard: str, section: str):
 
 def db_mark_student_attendance(standard: str, section: str, attendance_data: dict):
     try:
-        table_name = "attendance_records"
-        current_date = datetime.now().strftime("%Y-%m-%d")  # Get current date in YYYY-MM-DD format
+        table_name = f"class{standard}{section}"
+        current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
+        attendance_column = f"att{current_date}"  # New column name
 
-        values = [(student_roll_number, current_date, status) for student_roll_number, status in
-                  attendance_data.items()]
+        # Add the new column if it doesn't exist
+        add_column_query = f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS {attendance_column} VARCHAR(10)"
+        cursor.execute(add_column_query)
+        conn.commit()
 
-        query = f"INSERT INTO {table_name} (roll_number, date, status) VALUES (%s, %s, %s)"
-        cursor.executemany(query, values)
+        for student_roll_number, status in attendance_data.items():
+            query = f"UPDATE {table_name} SET {attendance_column} = %s WHERE roll_number = %s"
+            cursor.execute(query, (status, student_roll_number))
         conn.commit()
 
         return {"message": "Attendance marked successfully"}
