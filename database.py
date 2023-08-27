@@ -386,8 +386,12 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
 
 # database.py
 
+
 def db_get_attendance(standard: str, section: str):
     try:
+        conn = psycopg2.connect(database="your_database", user="your_user", password="your_password", host="your_host", port="your_port")
+        cursor = conn.cursor()
+
         table_name = f"class{standard}{section}"
 
         # Query to retrieve attendance columns
@@ -400,13 +404,21 @@ def db_get_attendance(standard: str, section: str):
         cursor.execute(attendance_query)
         attendance_records = cursor.fetchall()
 
+        cursor.close()
+        conn.close()
+
         return attendance_records
     except Exception as e:
         return {"error": str(e)}
 
 
+
+
 def db_get_marks(standard: str, section: str, subject: str):
     try:
+        conn = psycopg2.connect(database="your_database", user="your_user", password="your_password", host="your_host", port="your_port")
+        cursor = conn.cursor()
+
         table_name = f"class{standard}{section}"
 
         # Query to retrieve all columns related to the subject
@@ -418,6 +430,9 @@ def db_get_marks(standard: str, section: str, subject: str):
         marks_query = f"SELECT roll_number, name, {', '.join(marks_columns)} FROM {table_name}"
         cursor.execute(marks_query)
         marks_records = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
 
         return marks_records
     except Exception as e:
