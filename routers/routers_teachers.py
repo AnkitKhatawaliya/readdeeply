@@ -70,9 +70,9 @@ def get_attendance(standard: str, section: str):
     return attendance_records
 
 
-@router.get("/get_marks/{standard}/{section}/{subject}")
-def get_marks(standard: str, section: str, subject: str):
-    marks_records = db_get_marks(standard, section, subject)
+@app.get("/get_marks/{standard}/{section}")
+def get_marks(standard: str, section: str):
+    marks_records = db_get_marks(standard, section)
     if isinstance(marks_records, dict) and "error" in marks_records:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
     return marks_records

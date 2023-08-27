@@ -386,53 +386,42 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
 
 # database.py
 
-
 def db_get_attendance(standard: str, section: str):
     try:
-        conn = psycopg2.connect(database="your_database", user="your_user", password="your_password", host="your_host", port="your_port")
-        cursor = conn.cursor()
-
         table_name = f"class{standard}{section}"
 
         # Query to retrieve attendance columns
         columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'att%'"
+        print(columns_query)
         cursor.execute(columns_query)
         attendance_columns = [row[0] for row in cursor.fetchall()]
 
         # Query to fetch attendance records
         attendance_query = f"SELECT roll_number, name, {', '.join(attendance_columns)} FROM {table_name}"
+        print(attendance_query)
         cursor.execute(attendance_query)
         attendance_records = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
 
         return attendance_records
     except Exception as e:
         return {"error": str(e)}
 
 
-
-
-def db_get_marks(standard: str, section: str, subject: str):
+def db_get_marks(standard: str, section: str):
     try:
-        conn = psycopg2.connect(database="your_database", user="your_user", password="your_password", host="your_host", port="your_port")
-        cursor = conn.cursor()
-
         table_name = f"class{standard}{section}"
 
-        # Query to retrieve all columns related to the subject
-        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'marks_{subject}_%'"
+        # Query to retrieve columns starting with "marks"
+        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'marks%'"
         cursor.execute(columns_query)
+        print(columns_query)
         marks_columns = [row[0] for row in cursor.fetchall()]
 
-        # Query to fetch marks records
+        # Query to fetch marks records with the selected columns
         marks_query = f"SELECT roll_number, name, {', '.join(marks_columns)} FROM {table_name}"
+        print(marks_query)
         cursor.execute(marks_query)
         marks_records = cursor.fetchall()
-
-        cursor.close()
-        conn.close()
 
         return marks_records
     except Exception as e:
