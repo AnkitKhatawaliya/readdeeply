@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException , status
-from database import db_validate_teacher_credentials
+from database import db_validate_teacher_credentials, db_get_attendance, db_get_marks
 from database import db_table_exists , db_fetch_students_from_class
 from database import db_mark_student_attendance
 from typing import List, Dict, Union
@@ -61,3 +61,19 @@ def add_marks(standard: str, section: str, subject: str, marks_data: List[Dict[s
         raise HTTPException(status_code=500, detail="Error adding marks to the database")
 
     return response
+
+@router.get("/get_attendance/{standard}/{section}")
+def get_attendance(standard: str, section: str):
+    attendance_records = db_get_attendance(standard, section)
+    if isinstance(attendance_records, dict) and "error" in attendance_records:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=attendance_records["error"])
+    return attendance_records
+
+
+@router.get("/get_marks/{standard}/{section}/{subject}")
+def get_marks(standard: str, section: str, subject: str):
+    marks_records = db_get_marks(standard, section, subject)
+    if isinstance(marks_records, dict) and "error" in marks_records:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
+    return marks_records
+

@@ -383,3 +383,43 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
         return {"message": "Marks added successfully"}
     except Exception as e:
         return {"error": str(e)}
+
+# database.py
+
+def db_get_attendance(standard: str, section: str):
+    try:
+        table_name = f"class{standard}{section}"
+
+        # Query to retrieve attendance columns
+        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'att%'"
+        cursor.execute(columns_query)
+        attendance_columns = [row[0] for row in cursor.fetchall()]
+
+        # Query to fetch attendance records
+        attendance_query = f"SELECT roll_number, name, {', '.join(attendance_columns)} FROM {table_name}"
+        cursor.execute(attendance_query)
+        attendance_records = cursor.fetchall()
+
+        return attendance_records
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def db_get_marks(standard: str, section: str, subject: str):
+    try:
+        table_name = f"class{standard}{section}"
+
+        # Query to retrieve all columns related to the subject
+        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'marks_{subject}_%'"
+        cursor.execute(columns_query)
+        marks_columns = [row[0] for row in cursor.fetchall()]
+
+        # Query to fetch marks records
+        marks_query = f"SELECT roll_number, name, {', '.join(marks_columns)} FROM {table_name}"
+        cursor.execute(marks_query)
+        marks_records = cursor.fetchall()
+
+        return marks_records
+    except Exception as e:
+        return {"error": str(e)}
+
