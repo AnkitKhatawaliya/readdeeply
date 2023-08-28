@@ -1,9 +1,12 @@
 from fastapi import APIRouter, HTTPException , status
-from database import db_validate_teacher_credentials, db_get_attendance, db_get_marks
+from database import db_validate_teacher_credentials, db_get_attendance, db_get_marks, \
+    db_fetch_homework_by_standard_section_subject
 from database import db_table_exists , db_fetch_students_from_class
 from database import db_mark_student_attendance
 from typing import List, Dict, Union
 from database import db_add_marks
+from database import db_create_homework_table, db_add_class_homework, db_update_homework , db_fetch_homework_by_standard_section
+from schemas.schemas import Homework
 
 
 router = APIRouter()
@@ -77,3 +80,42 @@ def get_marks(standard: str, section: str):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
     return marks_records
 
+
+@router.get("/create_hw_table", response_model=dict)
+def create_homework_table():
+    response = db_create_homework_table()
+    return response
+
+@router.post("/add_class_hw/{standard}/{section}/{subject}", response_model=dict)
+def add_class_homework(standard: str, section: str, subject: str):
+    homework_data = Homework(standard=standard, section=section, subject=subject, monday="yet to be added", tuesday="yet to be added", wednesday="yet to be added", thursday="yet to be added", friday="yet to be added", saturday="yet to be added")
+    response = db_add_class_homework(homework_data)
+    return response
+
+@router.put("/update_homework", response_model=dict)
+def update_homework(
+    standard: str,
+    section: str,
+    subject: str,
+    day: str,
+    text: str
+):
+    response = db_update_homework(standard, section, subject, day, text)
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["error"])
+    return response
+
+
+@router.get("/fetch_homework/{standard}/{section}", response_model=list)
+def fetch_homework_by_standard_section(standard: str, section: str):
+    homework_data = db_fetch_homework_by_standard_section(standard, section)
+    if "error" in homework_data:
+        raise HTTPException(status_code=500, detail=homework_data["error"])
+    return homework_data
+
+@router.get("/fetch_homework/{standard}/{section}/{subject}", response_model=list)
+def fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
+    homework_data = db_fetch_homework_by_standard_section_subject(standard, section, subject)
+    if "error" in homework_data:
+        raise HTTPException(status_code=500, detail=homework_data["error"])
+    return homework_data

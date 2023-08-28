@@ -386,23 +386,37 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
 
 # database.py
 
+def db_fetch_homework_by_standard_section(standard: str, section: str):
+    try:
+        query = """
+        SELECT * FROM homework_table
+        WHERE standard = %s AND section = %s
+        """
+        cursor.execute(query, (standard, section))
+        homework_data = cursor.fetchall()
+        return homework_data
+    except Exception as e:
+        return {"error": str(e)}
+
 def db_get_attendance(standard: str, section: str):
     try:
         table_name = f"class{standard}{section}"
 
-        # Query to retrieve attendance columns
-        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'att%'"
-        print(columns_query)
-        cursor.execute(columns_query)
-        attendance_columns = [row[0] for row in cursor.fetchall()]
+        # Get the column names with "att_" prefix using information_schema
+        query = f"SELECT column_name FROM information_schema.columns WHERE table_name = %s AND column_name LIKE 'att%'"
+        cursor.execute(query, (table_name,))
+        column_records = cursor.fetchall()
 
-        # Query to fetch attendance records
-        attendance_query = f"SELECT roll_number, name, {', '.join(attendance_columns)} FROM {table_name}"
-        print(attendance_query)
-        cursor.execute(attendance_query)
-        attendance_records = cursor.fetchall()
+        print("column_records:", column_records)  # Add this line for debugging
 
-        return attendance_records
+        # Check if there are any records
+        if not column_records:
+            return []  # Return an empty list if no attendance columns are found
+
+        # Extract column names from the records
+        attendance_columns = [record[0] for record in column_records]
+
+        return attendance_columns
     except Exception as e:
         return {"error": str(e)}
 
@@ -427,3 +441,81 @@ def db_get_marks(standard: str, section: str):
     except Exception as e:
         return {"error": str(e)}
 
+# database.py
+
+def db_create_homework_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS homework_table (
+            id SERIAL PRIMARY KEY,
+            standard VARCHAR(10) NOT NULL,
+            section VARCHAR(10) NOT NULL,
+            subject VARCHAR(100) NOT NULL,
+            monday TEXT DEFAULT 'yet to be added',
+            tuesday TEXT DEFAULT 'yet to be added',
+            wednesday TEXT DEFAULT 'yet to be added',
+            thursday TEXT DEFAULT 'yet to be added',
+            friday TEXT DEFAULT 'yet to be added',
+            saturday TEXT DEFAULT 'yet to be added'
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "homework_table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_add_class_homework(homework_data):
+    try:
+        query = """
+        INSERT INTO homework_table (standard, section, subject, monday, tuesday, wednesday, thursday, friday, saturday)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (
+            homework_data.standard, homework_data.section, homework_data.subject,
+            homework_data.monday, homework_data.tuesday, homework_data.wednesday,
+            homework_data.thursday, homework_data.friday, homework_data.saturday
+        ))
+        conn.commit()
+        return {"message": f"Default homework added for {homework_data.standard}-{homework_data.section} {homework_data.subject}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_update_homework(standard: str, section: str, subject: str, day: str, text: str):
+    try:
+        query = """
+        SELECT id FROM homework_table
+        WHERE standard = %s AND section = %s AND subject = %s
+        """
+        cursor.execute(query, (standard, section, subject))
+        row = cursor.fetchone()
+
+        if not row:
+            return {"error": "Homework data not found"}
+
+        update_query = f"""
+        UPDATE homework_table
+        SET {day} = %s
+        WHERE id = %s
+        """
+        cursor.execute(update_query, (text, row["id"]))
+        conn.commit()
+
+        return {"message": f"{day}'s homework updated successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# database.py
+
+def db_fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
+    try:
+        query = """
+        SELECT * FROM homework_table
+        WHERE standard = %s AND section = %s AND subject = %s
+        """
+        cursor.execute(query, (standard, section, subject))
+        homework_data = cursor.fetchall()
+        return homework_data
+    except Exception as e:
+        return {"error": str(e)}

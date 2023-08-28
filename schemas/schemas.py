@@ -59,3 +59,16 @@ class CalendarEvent(BaseModel):
     class Config:
         orm_mode = True
 
+class Homework(BaseModel):
+    standard: str
+    section: str
+    subject: str
+    monday: str
+    tuesday: str
+    wednesday: str
+    thursday: str
+    friday: str
+    saturday: str
+
+    class Config:
+        orm_mode = True
