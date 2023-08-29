@@ -519,3 +519,37 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
         return homework_data
     except Exception as e:
         return {"error": str(e)}
+
+
+#Student Methods
+
+def db_validate_student(standard: str, section: str, roll_number: int, password: str):
+    try:
+        table_name = f"class{standard}{section}"
+        query = f"""
+        SELECT COUNT(*) FROM {table_name}
+        WHERE roll_number = %s AND password = %s
+        """
+        values = (roll_number, password)
+        cursor.execute(query, values)
+        result = cursor.fetchone()
+
+        if result[0] == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
+
+
+def db_get_student_info(standard: str, section: str, roll_number: int):
+    try:
+        table_name = f"class{standard}{section}"
+        query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
+        cursor.execute(query, (roll_number,))
+        student_info = cursor.fetchone()
+        return student_info
+    except Exception as e:
+        return None
+
+
