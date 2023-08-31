@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException , status
 from typing import List, Dict, Union
-from schemas.schemas import Homework
-from database import db_validate_teacher_credentials, db_fetch_students_from_class
+from schemas.schemas import Homework, CalendarEvent, Timetable
+from database import db_validate_teacher_credentials, db_fetch_students_from_class, db_fetch_all_calendar_events, \
+    db_fetch_timetable_records_by_standard_section
 from database import db_table_exists , db_fetch_homework_by_standard_section_subject
 from database import db_add_marks, db_get_marks, db_mark_student_attendance, db_get_attendance
 from database import db_create_homework_table, db_add_class_homework, db_update_homework , db_fetch_homework_by_standard_section
@@ -104,12 +105,6 @@ def update_homework(
     return response
 
 
-@router.get("/fetch_homework/{standard}/{section}", response_model=list)
-def fetch_homework_by_standard_section(standard: str, section: str):
-    homework_data = db_fetch_homework_by_standard_section(standard, section)
-    if "error" in homework_data:
-        raise HTTPException(status_code=500, detail=homework_data["error"])
-    return homework_data
 
 @router.get("/fetch_homework/{standard}/{section}/{subject}", response_model=list)
 def fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
@@ -117,3 +112,16 @@ def fetch_homework_by_standard_section_subject(standard: str, section: str, subj
     if "error" in homework_data:
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
+
+@router.get("/fetchcalendarevents", response_model=List[CalendarEvent])
+def fetch_calendar_events():
+    events = db_fetch_all_calendar_events()
+    return events
+
+
+@router.get("/fetchtimetablerecords/{standard}/{section}", response_model=List[Timetable])
+def fetch_timetable_records_by_standard_section(standard: str, section: str):
+    timetables = db_fetch_timetable_records_by_standard_section(standard, section)
+    if not timetables:
+        raise HTTPException(status_code=404, detail="No matching records found")
+    return timetables

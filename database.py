@@ -554,3 +554,15 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
             return False
     except Exception as e:
         return False
+
+
+def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
+    try:
+        query = "SELECT * FROM Time_table WHERE Standard = %s AND Section = %s"
+        values = (standard, section)
+        cursor.execute(query, values)
+        timetables = cursor.fetchall()
+        return timetables
+    except Exception as e:
+        return {"error": str(e)}
+
