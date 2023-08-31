@@ -1,12 +1,10 @@
 from fastapi import APIRouter, HTTPException , status
-from database import db_validate_teacher_credentials, db_get_attendance, db_get_marks, \
-    db_fetch_homework_by_standard_section_subject
-from database import db_table_exists , db_fetch_students_from_class
-from database import db_mark_student_attendance
 from typing import List, Dict, Union
-from database import db_add_marks
-from database import db_create_homework_table, db_add_class_homework, db_update_homework , db_fetch_homework_by_standard_section
 from schemas.schemas import Homework
+from database import db_validate_teacher_credentials, db_fetch_students_from_class
+from database import db_table_exists , db_fetch_homework_by_standard_section_subject
+from database import db_add_marks, db_get_marks, db_mark_student_attendance, db_get_attendance
+from database import db_create_homework_table, db_add_class_homework, db_update_homework , db_fetch_homework_by_standard_section
 
 
 router = APIRouter()

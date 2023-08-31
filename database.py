@@ -384,7 +384,36 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
     except Exception as e:
         return {"error": str(e)}
 
-# database.py
+
+def db_get_attendance(standard: str, section: str):
+    try:
+        table_name = f"class{standard}{section}"
+
+        # Query to fetch all columns from the table
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+        records = cursor.fetchall()
+
+        return records
+    except Exception as e:
+        return {"error": str(e)}
+
+
+def db_get_marks(standard: str, section: str):
+    try:
+        table_name = f"class{standard}{section}"
+
+        # Query to fetch all columns from the table
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+        records = cursor.fetchall()
+
+        return records
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# database.py for homework
 
 def db_fetch_homework_by_standard_section(standard: str, section: str):
     try:
@@ -398,50 +427,6 @@ def db_fetch_homework_by_standard_section(standard: str, section: str):
     except Exception as e:
         return {"error": str(e)}
 
-def db_get_attendance(standard: str, section: str):
-    try:
-        table_name = f"class{standard}{section}"
-
-        # Get the column names with "att_" prefix using information_schema
-        query = f"SELECT column_name FROM information_schema.columns WHERE table_name = %s AND column_name LIKE 'att%'"
-        cursor.execute(query, (table_name,))
-        column_records = cursor.fetchall()
-
-        print("column_records:", column_records)  # Add this line for debugging
-
-        # Check if there are any records
-        if not column_records:
-            return []  # Return an empty list if no attendance columns are found
-
-        # Extract column names from the records
-        attendance_columns = [record[0] for record in column_records]
-
-        return attendance_columns
-    except Exception as e:
-        return {"error": str(e)}
-
-
-def db_get_marks(standard: str, section: str):
-    try:
-        table_name = f"class{standard}{section}"
-
-        # Query to retrieve columns starting with "marks"
-        columns_query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}' AND column_name LIKE 'marks%'"
-        cursor.execute(columns_query)
-        print(columns_query)
-        marks_columns = [row[0] for row in cursor.fetchall()]
-
-        # Query to fetch marks records with the selected columns
-        marks_query = f"SELECT roll_number, name, {', '.join(marks_columns)} FROM {table_name}"
-        print(marks_query)
-        cursor.execute(marks_query)
-        marks_records = cursor.fetchall()
-
-        return marks_records
-    except Exception as e:
-        return {"error": str(e)}
-
-# database.py
 
 def db_create_homework_table():
     try:
@@ -552,4 +537,20 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
     except Exception as e:
         return None
 
+def db_validate_parent(standard: str, section: str, roll_number: int, password: str):
+    try:
+        table_name = f"class{standard}{section}"
+        query = f"""
+               SELECT COUNT(*) FROM {table_name}
+               WHERE roll_number = %s AND parent_password = %s
+               """
+        values = (roll_number, password)
+        cursor.execute(query, values)
+        result = cursor.fetchone()
 
+        if result[0] == 1:
+            return True
+        else:
+            return False
+    except Exception as e:
+        return False
