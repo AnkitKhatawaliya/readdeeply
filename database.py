@@ -566,3 +566,14 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+#   experiment
+# def db_fetch_timetable_for_teacher(teacher_id: int):
+#     try:
+#         query = "SELECT standard, section, monday, tuesday, wednesday, thursday, friday, saturday FROM Time_table WHERE teacher_id = %s"
+#         values = (teacher_id,)
+#         cursor.execute(query, values)
+#         timetable = cursor.fetchall()
+#         return timetable
+#     except Exception as e:
+#         return {"error": str(e)}

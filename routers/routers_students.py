@@ -8,8 +8,9 @@ from typing import List
 router = APIRouter()
 
 @router.get("/validate_student/{standard}/{section}/{roll_number}/{password}", status_code=status.HTTP_200_OK)
-def validate_student_login(standard: str, section: str, roll_number: int, password: str):
-    is_valid = db_validate_student(standard, section, roll_number, password)
+def validate_student_login(standard: str, section: str, roll_number: str, password: str):
+    roll_number_int = int(roll_number)  # Convert the string to an integer
+    is_valid = db_validate_student(standard, section, roll_number_int, password)
     if is_valid:
         # Set session data and respond with success
         # You should implement the logic to store session data here
@@ -18,8 +19,9 @@ def validate_student_login(standard: str, section: str, roll_number: int, passwo
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid student credentials")
 
 @router.get("/needstudentinfo/{standard}/{section}/{roll_number}", response_model=dict)
-def get_student_info(standard: str, section: str, roll_number: int):
-    student_info = db_get_student_info(standard, section, roll_number)
+def get_student_info(standard: str, section: str, roll_number: str):
+    roll_number_int = int(roll_number)  # Convert the string to an integer
+    student_info = db_get_student_info(standard, section, roll_number_int)
     if student_info:
         return student_info
     else:
