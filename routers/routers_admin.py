@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
-from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, db_delete_student_from_class
+from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, \
+    db_delete_student_from_class, db_add_student_photo, db_create_student_photos_table
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
 from database import db_create_calendar_table , db_fetch_all_calendar_events , db_add_calendar_event , db_delete_calendar_event
@@ -114,7 +115,16 @@ def fetch_calendar_events():
 
 @router.delete("/deletecalendarevent/{sr_no}", status_code=status.HTTP_200_OK)
 def delete_calendar_event(sr_no: int):
+
     response = db_delete_calendar_event(sr_no)
     if "error" in response:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
+
+@router.post("/addstudentphoto", status_code=status.HTTP_201_CREATED)
+def add_student_photo(adm_no: str, photo_data: bytes):
+    db_create_student_photos_table();
+    response = db_add_student_photo(adm_no, photo_data)
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
+    return response

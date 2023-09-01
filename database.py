@@ -577,3 +577,44 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
 #         return timetable
 #     except Exception as e:
 #         return {"error": str(e)}
+
+
+def db_create_student_photos_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS student_photos (
+            id SERIAL PRIMARY KEY,
+            adm_no VARCHAR(255) UNIQUE,
+            photo_data BYTEA
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "Student photos table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_add_student_photo(adm_no: str, photo_data: bytes):
+    try:
+        query = """
+        INSERT INTO student_photos (adm_no, photo_data)
+        VALUES (%s, %s)
+        ON CONFLICT (adm_no) DO UPDATE SET photo_data = EXCLUDED.photo_data
+        """
+        values = (adm_no, photo_data)
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Student photo added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_fetch_student_photo(adm_no: str):
+    try:
+        query = """
+        SELECT photo_data FROM student_photos WHERE adm_no = %s
+        """
+        cursor.execute(query, (adm_no,))
+        photo_data = cursor.fetchone()
+        return photo_data['photo_data'] if photo_data else None
+    except Exception as e:
+        return {"error": str(e)}
