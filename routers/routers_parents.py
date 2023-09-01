@@ -7,7 +7,7 @@ from starlette.responses import JSONResponse
 from database import db_validate_parent, db_get_student_info, db_fetch_homework_by_standard_section, \
     db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, \
     db_fetch_student_photo
-from schemas.schemas import CalendarEvent, Timetable
+from schemas.schemas import CalendarEvent, Timetable, StudentPhotoResponse
 
 router = APIRouter()
 
@@ -68,10 +68,10 @@ def get_marks(standard: str, section: str):
     return marks_records
 
 
-@router.get("/fetchstudentphoto/{adm_no}")
-def fetch_student_photo(adm_no: str):
-    photo_data = db_fetch_student_photo(adm_no)
-    if photo_data:
-        return JSONResponse(content={"photo_data": base64.b64encode(photo_data).decode('utf-8')})
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student photo not found")
+# Create a router for fetching a student photo
+@router.get("/getstudentphoto/{adm_no}", response_model=StudentPhotoResponse)
+def get_student_photo(adm_no: str):
+    response = db_fetch_student_photo(adm_no)
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["error"])
+    return response

@@ -597,32 +597,58 @@ def db_create_student_photos_table():
         return {"error": str(e)}
 
 
-# Modify the database methods to store and retrieve images as strings
-def db_add_student_photo(adm_no: str, photo_data: bytes):
+
+def db_create_student_photos_table():
     try:
-        # Convert the bytes to a Base64 encoded string
-        photo_data_str = base64.b64encode(photo_data).decode()
-        query = """
-        INSERT INTO student_photos (adm_no, photo_data)
-        VALUES (%s, %s)
-        ON CONFLICT (adm_no) DO UPDATE SET photo_data = EXCLUDED.photo_data
+        # Define the SQL query to create the student_photos table
+        create_table_query = """
+        CREATE TABLE IF NOT EXISTS student_photos (
+            id SERIAL PRIMARY KEY,
+            adm_no VARCHAR(20) UNIQUE NOT NULL,
+            photo_url TEXT
+        )
         """
-        values = (adm_no, photo_data_str)
-        cursor.execute(query, values)
+        # Execute the query to create the table
+        cursor.execute(create_table_query)
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+
+def db_add_student_photo(adm_no: str, photo_url: str):
+    try:
+        # Define the SQL query to add a student photo
+        insert_query = """
+        INSERT INTO student_photos (adm_no, photo_url)
+        VALUES (%s, %s)
+        ON CONFLICT (adm_no) DO UPDATE SET photo_url = EXCLUDED.photo_url
+        """
+        # Execute the query to add the photo
+        cursor.execute(insert_query, (adm_no, photo_url))
         conn.commit()
         return {"message": "Student photo added successfully"}
     except Exception as e:
+        conn.rollback()
         return {"error": str(e)}
+    finally:
+        cursor.close()
 
 def db_fetch_student_photo(adm_no: str):
     try:
-        query = """
-        SELECT photo_data FROM student_photos WHERE adm_no = %s
+        # Define the SQL query to fetch a student's photo URL
+        select_query = """
+        SELECT photo_url FROM student_photos WHERE adm_no = %s
         """
-        cursor.execute(query, (adm_no,))
+        # Execute the query to fetch the photo URL
+        cursor.execute(select_query, (adm_no,))
         photo_data = cursor.fetchone()
-        # If a photo is found, decode the Base64 string back to bytes
-        return base64.b64decode(photo_data['photo_data']) if photo_data else None
+        if photo_data:
+            return {"photo_url": photo_data[0]}
+        else:
+            return {"message": "Student photo not found"}
     except Exception as e:
         return {"error": str(e)}
-
+    finally:
+        cursor.close()

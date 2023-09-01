@@ -72,3 +72,7 @@ class Homework(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class StudentPhotoResponse(BaseModel):
+    photo_url: str
