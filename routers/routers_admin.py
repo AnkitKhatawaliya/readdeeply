@@ -128,7 +128,7 @@ def delete_calendar_event(sr_no: int):
 def add_student_photo(adm_no: str, photo_data: str):
     db_create_student_photos_table()
     # Convert the Base64 encoded string back to bytes before storing it in the database
-    photo_bytes = base64.b64decode(photo_data.encode())
+    photo_bytes = base64.b64decode(photo_data.photo_data)
     response = db_add_student_photo(adm_no, photo_bytes)
     if "error" in response:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
