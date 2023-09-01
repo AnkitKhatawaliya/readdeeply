@@ -1,3 +1,5 @@
+import base64
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
@@ -594,14 +596,18 @@ def db_create_student_photos_table():
     except Exception as e:
         return {"error": str(e)}
 
+
+# Modify the database methods to store and retrieve images as strings
 def db_add_student_photo(adm_no: str, photo_data: bytes):
     try:
+        # Convert the bytes to a Base64 encoded string
+        photo_data_str = base64.b64encode(photo_data).decode()
         query = """
         INSERT INTO student_photos (adm_no, photo_data)
         VALUES (%s, %s)
         ON CONFLICT (adm_no) DO UPDATE SET photo_data = EXCLUDED.photo_data
         """
-        values = (adm_no, photo_data)
+        values = (adm_no, photo_data_str)
         cursor.execute(query, values)
         conn.commit()
         return {"message": "Student photo added successfully"}
@@ -615,6 +621,8 @@ def db_fetch_student_photo(adm_no: str):
         """
         cursor.execute(query, (adm_no,))
         photo_data = cursor.fetchone()
-        return photo_data['photo_data'] if photo_data else None
+        # If a photo is found, decode the Base64 string back to bytes
+        return base64.b64decode(photo_data['photo_data']) if photo_data else None
     except Exception as e:
         return {"error": str(e)}
+

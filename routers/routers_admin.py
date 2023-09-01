@@ -1,3 +1,5 @@
+import base64
+
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, \
@@ -121,10 +123,13 @@ def delete_calendar_event(sr_no: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
 
-@router.post("/addstudentphoto", status_code=status.HTTP_201_CREATED)
-def add_student_photo(adm_no: str, photo_data: bytes):
-    db_create_student_photos_table();
-    response = db_add_student_photo(adm_no, photo_data)
+# Modify your route to include adm_no as a path parameter
+@router.post("/addstudentphoto/{adm_no}", status_code=status.HTTP_201_CREATED)
+def add_student_photo(adm_no: str, photo_data: str):
+    db_create_student_photos_table()
+    # Convert the Base64 encoded string back to bytes before storing it in the database
+    photo_bytes = base64.b64decode(photo_data.encode())
+    response = db_add_student_photo(adm_no, photo_bytes)
     if "error" in response:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return response
