@@ -1,5 +1,3 @@
-import base64
-
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
@@ -510,23 +508,27 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
 
 #Student Methods
 
+
 def db_validate_student(standard: str, section: str, roll_number: int, password: str):
     try:
         table_name = f"class{standard}{section}"
-        query = f"""
-        SELECT COUNT(*) FROM {table_name}
-        WHERE roll_number = %s AND password = %s
-        """
-        values = (roll_number, password)
-        cursor.execute(query, values)
-        result = cursor.fetchone()
+        query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
+        cursor.execute(query, (roll_number,))
+        student_info = cursor.fetchone()
 
-        if result[0] == 1:
-            return True
+        if student_info:
+            # Assuming the password is stored in the 'password' field of the database
+            db_password = student_info.get('password')
+
+            if db_password == password:
+                return student_info
+            else:
+                return None  # Passwords don't match, return None
         else:
-            return False
+            return None  # Student not found in the database
+
     except Exception as e:
-        return False
+        return None
 
 
 def db_get_student_info(standard: str, section: str, roll_number: int):
@@ -535,6 +537,7 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
         query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
         cursor.execute(query, (roll_number,))
         student_info = cursor.fetchone()
+        print(student_info)
         return student_info
     except Exception as e:
         return None
@@ -542,20 +545,23 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
 def db_validate_parent(standard: str, section: str, roll_number: int, password: str):
     try:
         table_name = f"class{standard}{section}"
-        query = f"""
-               SELECT COUNT(*) FROM {table_name}
-               WHERE roll_number = %s AND parent_password = %s
-               """
-        values = (roll_number, password)
-        cursor.execute(query, values)
-        result = cursor.fetchone()
+        query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
+        cursor.execute(query, (roll_number,))
+        student_info = cursor.fetchone()
 
-        if result[0] == 1:
-            return True
+        if student_info:
+            # Assuming the password is stored in the 'password' field of the database
+            db_password = student_info.get('parent_password')
+
+            if db_password == password:
+                return student_info
+            else:
+                return None  # Passwords don't match, return None
         else:
-            return False
+            return None  # Student not found in the database
+
     except Exception as e:
-        return False
+        return None
 
 
 def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
@@ -581,74 +587,3 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
 #         return {"error": str(e)}
 
 
-def db_create_student_photos_table():
-    try:
-        query = """
-        CREATE TABLE IF NOT EXISTS student_photos (
-            id SERIAL PRIMARY KEY,
-            adm_no VARCHAR(255) UNIQUE,
-            photo_data BYTEA
-        )
-        """
-        cursor.execute(query)
-        conn.commit()
-        return {"message": "Student photos table created successfully"}
-    except Exception as e:
-        return {"error": str(e)}
-
-
-
-def db_create_student_photos_table():
-    try:
-        # Define the SQL query to create the student_photos table
-        create_table_query = """
-        CREATE TABLE IF NOT EXISTS student_photos (
-            id SERIAL PRIMARY KEY,
-            adm_no VARCHAR(20) UNIQUE NOT NULL,
-            photo_url TEXT
-        )
-        """
-        # Execute the query to create the table
-        cursor.execute(create_table_query)
-        conn.commit()
-    except Exception as e:
-        conn.rollback()
-        raise e
-    finally:
-        cursor.close()
-
-def db_add_student_photo(adm_no: str, photo_url: str):
-    try:
-        # Define the SQL query to add a student photo
-        insert_query = """
-        INSERT INTO student_photos (adm_no, photo_url)
-        VALUES (%s, %s)
-        ON CONFLICT (adm_no) DO UPDATE SET photo_url = EXCLUDED.photo_url
-        """
-        # Execute the query to add the photo
-        cursor.execute(insert_query, (adm_no, photo_url))
-        conn.commit()
-        return {"message": "Student photo added successfully"}
-    except Exception as e:
-        conn.rollback()
-        return {"error": str(e)}
-    finally:
-        cursor.close()
-
-def db_fetch_student_photo(adm_no: str):
-    try:
-        # Define the SQL query to fetch a student's photo URL
-        select_query = """
-        SELECT photo_url FROM student_photos WHERE adm_no = %s
-        """
-        # Execute the query to fetch the photo URL
-        cursor.execute(select_query, (adm_no,))
-        photo_data = cursor.fetchone()
-        if photo_data:
-            return {"photo_url": photo_data[0]}
-        else:
-            return {"message": "Student photo not found"}
-    except Exception as e:
-        return {"error": str(e)}
-    finally:
-        cursor.close()

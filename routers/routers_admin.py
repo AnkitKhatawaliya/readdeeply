@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, \
-    db_delete_student_from_class, db_add_student_photo, db_create_student_photos_table
+    db_delete_student_from_class
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
 from database import db_create_calendar_table , db_fetch_all_calendar_events , db_add_calendar_event , db_delete_calendar_event
@@ -126,5 +126,5 @@ def add_student_photo(adm_no: str, photo_url: str):
     db_create_student_photos_table()
     response = db_add_student_photo(adm_no, photo_url)
     if "error" in response:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error in server side"])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     return response

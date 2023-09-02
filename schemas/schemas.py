@@ -74,5 +74,3 @@ class Homework(BaseModel):
         orm_mode = True
 
 
-class StudentPhotoResponse(BaseModel):
-    photo_url: str

@@ -5,9 +5,8 @@ from fastapi import APIRouter, HTTPException, status
 from starlette.responses import JSONResponse
 
 from database import db_validate_parent, db_get_student_info, db_fetch_homework_by_standard_section, \
-    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, \
-    db_fetch_student_photo
-from schemas.schemas import CalendarEvent, Timetable, StudentPhotoResponse
+    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks
+from schemas.schemas import CalendarEvent, Timetable
 
 router = APIRouter()
 
@@ -18,7 +17,7 @@ def validate_parent_login(standard: str, section: str, roll_number: str, passwor
     if is_valid:
         # Set session data and respond with success
         # You should implement the logic to store session data here
-        return {"message": "Student login successful"}
+        return {"message": "Parent login successful"}
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid student credentials")
 
@@ -68,10 +67,3 @@ def get_marks(standard: str, section: str):
     return marks_records
 
 
-# Create a router for fetching a student photo
-@router.get("/getstudentphoto/{adm_no}", response_model=StudentPhotoResponse)
-def get_student_photo(adm_no: str):
-    response = db_fetch_student_photo(adm_no)
-    if "error" in response:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["error"])
-    return response
