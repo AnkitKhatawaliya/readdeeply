@@ -121,8 +121,6 @@ def delete_calendar_event(sr_no: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
 
-# In routers_parents.py
-
 
 @router.get("/paymentsof/{date}", response_model=list)
 def get_payments_by_date(date: str):
@@ -132,4 +130,4 @@ def get_payments_by_date(date: str):
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No payments found for the specified date")
         return result
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No payments found for the specified date")
