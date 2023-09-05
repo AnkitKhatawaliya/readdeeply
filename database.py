@@ -574,16 +574,48 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
     except Exception as e:
         return {"error": str(e)}
 
-
-#   experiment
-# def db_fetch_timetable_for_teacher(teacher_id: int):
+#
+# def db_create_payment_table():
 #     try:
-#         query = "SELECT standard, section, monday, tuesday, wednesday, thursday, friday, saturday FROM Time_table WHERE teacher_id = %s"
-#         values = (teacher_id,)
-#         cursor.execute(query, values)
-#         timetable = cursor.fetchall()
-#         return timetable
+#         query = """
+#         CREATE TABLE IF NOT EXISTS payment_table (
+#             sr_no SERIAL,
+#             adm_no VARCHAR(255),
+#             standard VARCHAR(255),
+#             section VARCHAR(255),
+#             roll_no VARCHAR(255),
+#             amount VARCHAR(255),
+#             contact_no VARCHAR(255),
+#             payment_date VARCHAR(10),
+#             payment_time VARCHAR(4)
+#         )
+#         """
+#         cursor.execute(query)
+#         conn.commit()
+#         return {"message": "Payment table created successfully"}
 #     except Exception as e:
 #         return {"error": str(e)}
 
+def db_insert_payment_record(adm_no, standard, section, roll_no, amount, contact_no, payment_date ,payment_time):
+    try:
+        query = """
+        INSERT INTO payment_table (adm_no, standard, section, roll_no, amount, contact_no, payment_date, payment_time)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (adm_no, standard, section, roll_no, amount, contact_no, payment_date, payment_time)
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Payment record added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
 
+def db_get_payments_by_date(date):
+    try:
+        query = """
+        SELECT * FROM payment_table WHERE payment_date = %s
+        """
+        cursor.execute(query, (date,))
+        payments = cursor.fetchall()
+        return payments
+    except Exception as e:
+        return {"error": str(e)}

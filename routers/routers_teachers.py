@@ -129,35 +129,3 @@ def fetch_timetable_records_by_standard_section(standard: str, section: str):
         raise HTTPException(status_code=404, detail="No matching records found")
     return timetables
 
-
-#
-#  experiment
-# from typing import Dict, List, Optional
-# from database import db_fetch_timetable_for_teacher
-#
-# @router.get("/fetchtimetableforteacher/{teacher_id}", response_model=Dict[str, List[Dict[str, str]]])
-# def fetch_timetable_for_teacher(teacher_id: int):
-#     timetable = db_fetch_timetable_for_teacher(teacher_id)
-#     if not timetable:
-#         raise HTTPException(status_code=404, detail="No timetable records found")
-#
-#     days_of_week = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-#
-#     result = {}
-#     for day in days_of_week:
-#         day_timetable = []
-#         for lect_num in range(1, 9):
-#             lecture_info = {"lect": f"lect {lect_num}"}
-#             lecture_assigned = False
-#             for row in timetable:
-#                 if row[day] == lect_num:
-#                     lecture_info["standard"] = row["standard"]
-#                     lecture_info["section"] = row["section"]
-#                     lecture_assigned = True
-#                     break
-#             if not lecture_assigned:
-#                 lecture_info["status"] = "vacant"
-#             day_timetable.append(lecture_info)
-#         result[day] = day_timetable
-#
-#     return result
