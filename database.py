@@ -616,6 +616,8 @@ def db_get_payments_by_date(date):
         """
         cursor.execute(query, (date,))
         payments = cursor.fetchall()
+        if not payments:
+            return False
         return payments
     except Exception as e:
         return {"error": str(e)}
