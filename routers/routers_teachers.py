@@ -91,7 +91,7 @@ def add_class_homework(standard: str, section: str, subject: str):
     response = db_add_class_homework(homework_data)
     return response
 
-@router.put("/update_homework", response_model=dict)
+@router.post("/update_homework/{standard}/{section}/{subject}/{day}/{text}", response_model=dict)
 def update_homework(
     standard: str,
     section: str,
@@ -99,9 +99,12 @@ def update_homework(
     day: str,
     text: str
 ):
+    # Call your database update function here using the data from the URL parameters
     response = db_update_homework(standard, section, subject, day, text)
+
     if "error" in response:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["error"])
+        raise HTTPException(status_code=404, detail=response["error"])
+
     return response
 
 

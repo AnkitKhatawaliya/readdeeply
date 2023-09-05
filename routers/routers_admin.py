@@ -121,10 +121,10 @@ def delete_calendar_event(sr_no: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
 
-@router.post("/addstudentphoto", status_code=status.HTTP_201_CREATED)
-def add_student_photo(adm_no: str, photo_url: str):
-    db_create_student_photos_table()
-    response = db_add_student_photo(adm_no, photo_url)
-    if "error" in response:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-    return response
+# @router.post("/addstudentphoto", status_code=status.HTTP_201_CREATED)
+# def add_student_photo(adm_no: str, photo_url: str):
+#     db_create_student_photos_table()
+#     response = db_add_student_photo(adm_no, photo_url)
+#     if "error" in response:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+#     return response
