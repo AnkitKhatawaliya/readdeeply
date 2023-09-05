@@ -3,8 +3,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status
 
 from database import db_validate_parent, db_get_student_info, db_fetch_homework_by_standard_section, \
-    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, \
-    db_create_payment_table, db_insert_payment_record
+    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, db_insert_payment_record
 from schemas.schemas import CalendarEvent, Timetable
 
 router = APIRouter()
