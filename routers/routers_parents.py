@@ -77,6 +77,6 @@ def get_marks(standard: str, section: str):
 def add_payment_record(adm_no: str, standard: str, section: str, roll_no: str, amount: str, contact_no: str, payment_date: str, payment_time: str):
     result = db_insert_payment_record(adm_no, standard, section, roll_no, amount, contact_no, payment_date, payment_time)
     if "error" in result:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=result["error"])
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=result["Payment not Added to DATABASE"])
     return result
 

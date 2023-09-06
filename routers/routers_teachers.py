@@ -68,7 +68,7 @@ def add_marks(standard: str, section: str, subject: str, marks_data: List[Dict[s
 def get_attendance(standard: str, section: str):
     attendance_records = db_get_attendance(standard, section)
     if isinstance(attendance_records, dict) and "error" in attendance_records:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=attendance_records["error"])
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=attendance_records["error"])
     return attendance_records
 
 
