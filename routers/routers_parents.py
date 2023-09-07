@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, status
 
 from database import db_validate_parent, db_get_student_info, db_fetch_homework_by_standard_section, \
-    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, db_insert_payment_record
+    db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks
 from schemas.schemas import CalendarEvent, Timetable
 
 router = APIRouter()
@@ -63,20 +63,4 @@ def get_marks(standard: str, section: str):
     if isinstance(marks_records, dict) and "error" in marks_records:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
     return marks_records
-
-
-# @router.post("/createpaymenttable", status_code=status.HTTP_201_CREATED)
-# def create_payment_table():
-#     result = db_create_payment_table()
-#     if "error" in result:
-#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=result["error"])
-#     return result
-
-
-@router.post("/addapayrecord/{adm_no}/{standard}/{section}/{roll_no}/{amount}/{contact_no}/{payment_date}/{payment_time}", status_code=status.HTTP_201_CREATED)
-def add_payment_record(adm_no: str, standard: str, section: str, roll_no: str, amount: str, contact_no: str, payment_date: str, payment_time: str):
-    result = db_insert_payment_record(adm_no, standard, section, roll_no, amount, contact_no, payment_date, payment_time)
-    if "error" in result:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=result["Payment not Added to DATABASE"])
-    return result
 

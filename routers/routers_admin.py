@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, \
-    db_delete_student_from_class, db_get_payments_by_date
+    db_delete_student_from_class
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
 from database import db_create_calendar_table , db_fetch_all_calendar_events , db_add_calendar_event , db_delete_calendar_event
@@ -121,13 +121,3 @@ def delete_calendar_event(sr_no: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
 
-
-@router.get("/paymentsof/{date}", response_model=list)
-def get_payments_by_date(date: str):
-    try:
-        result = db_get_payments_by_date(date)
-        if not result:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No payments found for the specified date")
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No payments found for the specified date")
