@@ -708,7 +708,7 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
 
         if student_info:
             # Assuming the password is stored in the 'password' field of the database
-            db_password = student_info.get('parent_password')
+            db_password = student_info[9]
 
             if db_password == password:
                 return student_info
