@@ -663,8 +663,8 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
             student_data = {column_name: value for column_name, value in zip(column_names, student_info)}
 
             # Assuming the password is stored in the 'password' field of the database
-            db_password = student_data.get('password')
-
+            db_password = student_data[4]
+            print(db_password)
             if db_password == password:
                 return student_data
             else:
@@ -709,6 +709,7 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
         if student_info:
             # Assuming the password is stored in the 'password' field of the database
             db_password = student_info[9]
+            print(db_password)
 
             if db_password == password:
                 return student_info
