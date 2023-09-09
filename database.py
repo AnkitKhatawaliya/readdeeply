@@ -363,13 +363,18 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
+        # Convert the teacher_id to an integer
+        teacher_id = int(teacher_id)
+
         query = "SELECT * FROM Teacher_records WHERE ID = %s"
         cursor.execute(query, (teacher_id,))
         teacher = cursor.fetchone()
 
         if teacher is None:
             return None  # Teacher not found
-        if teacher["passw"] == password:
+
+        # Check if 'passw' key exists in the teacher dictionary
+        if teacher[8] == password:
             return teacher  # Credentials valid
         else:
             return False  # Incorrect password
