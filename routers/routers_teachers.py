@@ -80,18 +80,18 @@ def get_marks(standard: str, section: str):
     return marks_records
 
 
-@router.get("/create_hw_table", response_model=dict)
+@router.get("/create_hw_table")
 def create_homework_table():
     response = db_create_homework_table()
     return response
 
-@router.post("/add_class_hw/{standard}/{section}/{subject}", response_model=dict)
+@router.post("/add_class_hw/{standard}/{section}/{subject}")
 def add_class_homework(standard: str, section: str, subject: str):
     homework_data = Homework(standard=standard, section=section, subject=subject, monday="yet to be added", tuesday="yet to be added", wednesday="yet to be added", thursday="yet to be added", friday="yet to be added", saturday="yet to be added")
     response = db_add_class_homework(homework_data)
     return response
 
-@router.post("/update_homework/{standard}/{section}/{subject}/{day}/{text}", response_model=dict)
+@router.post("/update_homework/{standard}/{section}/{subject}/{day}/{text}")
 def update_homework(
     standard: str,
     section: str,
@@ -109,20 +109,20 @@ def update_homework(
 
 
 
-@router.get("/fetch_homework/{standard}/{section}/{subject}", response_model=list)
+@router.get("/fetch_homework/{standard}/{section}/{subject}")
 def fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
     homework_data = db_fetch_homework_by_standard_section_subject(standard, section, subject)
     if "error" in homework_data:
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
 
-@router.get("/fetchcalendarevents", response_model=List[CalendarEvent])
+@router.get("/fetchcalendarevents")
 def fetch_calendar_events():
     events = db_fetch_all_calendar_events()
     return events
 
 
-@router.get("/fetchtimetablerecords/{standard}/{section}", response_model=List[Timetable])
+@router.get("/fetchtimetablerecords/{standard}/{section}")
 def fetch_timetable_records_by_standard_section(standard: str, section: str):
     timetables = db_fetch_timetable_records_by_standard_section(standard, section)
     if not timetables:

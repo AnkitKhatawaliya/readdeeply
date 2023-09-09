@@ -1,7 +1,10 @@
 import psycopg2
+from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
-from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
+from schemas.schemas import ClassTable, Teacher, Timetable, CalendarEvent
 from datetime import datetime
+
+
 # conn = psycopg2.connect(
 #     host='localhost',
 #     database='wow',
@@ -10,17 +13,25 @@ from datetime import datetime
 #     cursor_factory=RealDictCursor
 # )
 #
-# cursor = conn.cursor()
+# cursor = connection.cursor()
 # print("Connection was successful.")
 
+# Create a connection pool
+db_pool = psycopg2.pool.SimpleConnectionPool(
+    minconn=1,
+    maxconn=10,  # Adjust this value based on your needs
+    dsn="postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-hidden-fire-57816100.us-east-2.aws.neon.tech/neondb"
+)
 
-dsn = "postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-hidden-fire-57816100.us-east-2.aws.neon.tech/neondb"
-conn = psycopg2.connect(dsn, cursor_factory=RealDictCursor)
-cursor = conn.cursor()
-print("Connection was successful.")
+def get_db_connection():
+    print("Connection was successful.")
+    return db_pool.getconn()
+
 
 
 def db_create_class_table(class_number: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
@@ -37,13 +48,15 @@ def db_create_class_table(class_number: str, section: str):
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": f"Table {table_name} created successfully"}  # Return success message
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
 
 def db_add_student_to_class(class_number: str, section: str, student: ClassTable):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
@@ -61,12 +74,14 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
             student.parent_password
         )
         cursor.execute(query, values)
-        conn.commit()
+        connection.commit()
         return {"message": "Student added successfully"}  # Return success message
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
 def db_delete_student_from_class(class_number: str, section: str, roll_number: int):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         query = f"""
@@ -74,15 +89,18 @@ def db_delete_student_from_class(class_number: str, section: str, roll_number: i
         WHERE roll_number = %s
         """
         cursor.execute(query, (roll_number,))
-        conn.commit()
+        connection.commit()
         return {"message": "Student deleted successfully"}  # Return success message
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
 def db_fetch_students_from_class_admin(class_number: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         query = f"SELECT * FROM {table_name}"
+        cursor = connection.cursor()
         cursor.execute(query)
         students = cursor.fetchall()
         return students  # Return list of students
@@ -91,6 +109,8 @@ def db_fetch_students_from_class_admin(class_number: str, section: str):
 
 
 def db_fetch_students_from_class(class_number: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         # List the specific columns you want to fetch
@@ -108,6 +128,7 @@ def db_fetch_students_from_class(class_number: str, section: str):
         columns_str = ", ".join(columns_to_fetch)
 
         query = f"SELECT {columns_str} FROM {table_name}"
+        cursor = connection.cursor()
         cursor.execute(query)
         students = cursor.fetchall()
         return students  # Return list of students with specified columns
@@ -117,6 +138,8 @@ def db_fetch_students_from_class(class_number: str, section: str):
 
 
 def db_table_exists(table_name: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = f"SELECT 1 FROM {table_name} LIMIT 1"
         cursor.execute(query)
@@ -126,6 +149,8 @@ def db_table_exists(table_name: str):
 
     
 def db_create_teacher_records_table():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         CREATE TABLE IF NOT EXISTS Teacher_records (
@@ -141,12 +166,14 @@ def db_create_teacher_records_table():
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": "Teacher_records table created successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_insert_teacher_record(teacher: Teacher):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         INSERT INTO Teacher_records (Name, Primary_class, Subject, Date_of_joining, Degree, Contact_number, Other_classes, Passw)
@@ -163,7 +190,7 @@ def db_insert_teacher_record(teacher: Teacher):
             teacher.passw  # New column value
         )
         cursor.execute(query, values)
-        conn.commit()
+        connection.commit()
         return {"message": "Teacher record added successfully"}
     except Exception as e:
         return {"error": str(e)}
@@ -172,6 +199,8 @@ def db_insert_teacher_record(teacher: Teacher):
 
 
 def db_fetch_all_teacher_records():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "SELECT * FROM Teacher_records"
         cursor.execute(query)
@@ -181,16 +210,20 @@ def db_fetch_all_teacher_records():
         return {"error": str(e)}
 
 def db_delete_teacher_record(teacher_id: int):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "DELETE FROM Teacher_records WHERE ID = %s"
         cursor.execute(query, (teacher_id,))
-        conn.commit()
+        connection.commit()
         return {"message": "Teacher record deleted successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 
 def db_create_timetable_table():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         CREATE TABLE IF NOT EXISTS Time_table (
@@ -209,12 +242,14 @@ def db_create_timetable_table():
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": "Time_table table created successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_add_timetable_record(timetable: Timetable):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         INSERT INTO Time_table (Standard, Section, Weekday, Lect_1, Lect_2, Lect_3, Lect_4, Lect_5, Lect_6, Lect_7, Lect_8)
@@ -234,12 +269,14 @@ def db_add_timetable_record(timetable: Timetable):
             timetable.lect_8
         )
         cursor.execute(query, values)
-        conn.commit()
+        connection.commit()
         return {"message": "Timetable record added successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_fetch_all_timetable_records():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "SELECT * FROM Time_table"
         cursor.execute(query)
@@ -249,15 +286,19 @@ def db_fetch_all_timetable_records():
         return {"error": str(e)}
 
 def db_delete_timetable_record(sr_no: int):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "DELETE FROM Time_table WHERE Sr_no = %s"
         cursor.execute(query, (sr_no,))
-        conn.commit()
+        connection.commit()
         return {"message": "Timetable record deleted successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_create_calendar_table():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         CREATE TABLE IF NOT EXISTS Calendar (
@@ -269,12 +310,14 @@ def db_create_calendar_table():
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": "Calendar table created successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_add_calendar_event(event: CalendarEvent):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         INSERT INTO Calendar (Date, Hook, Title, Content)
@@ -287,12 +330,14 @@ def db_add_calendar_event(event: CalendarEvent):
             event.content
         )
         cursor.execute(query, values)
-        conn.commit()
+        connection.commit()
         return {"message": "Calendar event added successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_fetch_all_calendar_events():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "SELECT * FROM Calendar"
         cursor.execute(query)
@@ -302,10 +347,12 @@ def db_fetch_all_calendar_events():
         return {"error": str(e)}
 
 def db_delete_calendar_event(sr_no: int):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "DELETE FROM Calendar WHERE Sr_no = %s"
         cursor.execute(query, (sr_no,))
-        conn.commit()
+        connection.commit()
         return {"message": "Calendar event deleted successfully"}
     except Exception as e:
         return {"error": str(e)}
@@ -313,6 +360,8 @@ def db_delete_calendar_event(sr_no: int):
 #Teacher methods
 
 def db_validate_teacher_credentials(teacher_id: str, password: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "SELECT * FROM Teacher_records WHERE ID = %s"
         cursor.execute(query, (teacher_id,))
@@ -329,6 +378,8 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
         return True
 
 def db_fetch_students_from_class(standard: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         query = f"SELECT roll_number, name FROM {table_name}"
@@ -340,6 +391,8 @@ def db_fetch_students_from_class(standard: str, section: str):
 
 
 def db_mark_student_attendance(standard: str, section: str, attendance_data: dict):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
@@ -348,12 +401,12 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
         # Add the new column if it doesn't exist
         add_column_query = f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS {attendance_column} VARCHAR(10)"
         cursor.execute(add_column_query)
-        conn.commit()
+        connection.commit()
 
         for student_roll_number, status in attendance_data.items():
             query = f"UPDATE {table_name} SET {attendance_column} = %s WHERE roll_number = %s"
             cursor.execute(query, (status, student_roll_number))
-        conn.commit()
+        connection.commit()
 
         return {"message": "Attendance marked successfully"}
     except Exception as e:
@@ -362,6 +415,8 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
 # database.py
 
 def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         current_date = datetime.now().strftime("%d%m")  # Get current date and month in DDMM format
@@ -370,14 +425,14 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
         # Add the new column if it doesn't exist
         add_column_query = f"ALTER TABLE {table_name} ADD COLUMN IF NOT EXISTS {marks_column} INT"
         cursor.execute(add_column_query)
-        conn.commit()
+        connection.commit()
 
         for entry in marks_data:
             roll_number = entry["roll_number"]
             marks = entry["marks"]
             update_query = f"UPDATE {table_name} SET {marks_column} = %s WHERE roll_number = %s"
             cursor.execute(update_query, (marks, roll_number))
-        conn.commit()
+        connection.commit()
 
         return {"message": "Marks added successfully"}
     except Exception as e:
@@ -385,6 +440,8 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
 
 
 def db_get_attendance(standard: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
 
@@ -399,6 +456,8 @@ def db_get_attendance(standard: str, section: str):
 
 
 def db_get_marks(standard: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
 
@@ -415,6 +474,8 @@ def db_get_marks(standard: str, section: str):
 # database.py for homework
 
 def db_fetch_homework_by_standard_section(standard: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         SELECT * FROM homework_table
@@ -428,6 +489,8 @@ def db_fetch_homework_by_standard_section(standard: str, section: str):
 
 
 def db_create_homework_table():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         CREATE TABLE IF NOT EXISTS homework_table (
@@ -444,12 +507,14 @@ def db_create_homework_table():
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": "homework_table created successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_add_class_homework(homework_data):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         INSERT INTO homework_table (standard, section, subject, monday, tuesday, wednesday, thursday, friday, saturday)
@@ -460,12 +525,14 @@ def db_add_class_homework(homework_data):
             homework_data.monday, homework_data.tuesday, homework_data.wednesday,
             homework_data.thursday, homework_data.friday, homework_data.saturday
         ))
-        conn.commit()
+        connection.commit()
         return {"message": f"Default homework added for {homework_data.standard}-{homework_data.section} {homework_data.subject}"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_update_homework(standard: str, section: str, subject: str, day: str, text: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         SELECT id FROM homework_table
@@ -483,7 +550,7 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
         WHERE id = %s
         """
         cursor.execute(update_query, (text, row["id"]))
-        conn.commit()
+        connection.commit()
 
         return {"message": f"{day}'s homework updated successfully"}
     except Exception as e:
@@ -493,6 +560,8 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
 # database.py
 
 def db_fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         SELECT * FROM homework_table
@@ -509,6 +578,8 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
 
 
 def db_validate_student(standard: str, section: str, roll_number: int, password: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
@@ -531,6 +602,8 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
 
 
 def db_get_student_info(standard: str, section: str, roll_number: int):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
@@ -542,6 +615,8 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
         return None
 
 def db_validate_parent(standard: str, section: str, roll_number: int, password: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
         query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
@@ -564,6 +639,8 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
 
 
 def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = "SELECT * FROM Time_table WHERE Standard = %s AND Section = %s"
         values = (standard, section)
@@ -579,6 +656,8 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
 
 
 def db_create_payment_tables():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     query = """
     CREATE TABLE IF NOT EXISTS Order_table (
         order_ID VARCHAR(255),
@@ -596,27 +675,33 @@ def db_create_payment_tables():
     """
     values = ()
     cursor.execute(query, values)
-    conn.commit()
+    connection.commit()
 
 def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: str, date_modified: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     query = """
     INSERT INTO Order_table (order_ID, adm_no, fee_amount, date_created, date_modified)
     VALUES (%s, %s, %s, %s, %s);
     """
     values = (order_id, adm_no, fee_amount, date_created, date_modified)
     cursor.execute(query, values)
-    conn.commit()
+    connection.commit()
 
 def db_create_transaction(order_id: str, transaction_id: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     query = """
     INSERT INTO Transaction_table (order_ID, transaction_ID)
     VALUES (%s, %s);
     """
     values = (order_id, transaction_id)
     cursor.execute(query, values)
-    conn.commit()
+    connection.commit()
 
 def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     query = """
     UPDATE Transaction_table
     SET payment_signature = %s, payment_status = %s
@@ -624,12 +709,14 @@ def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
     """
     values = (payment_signature, staitus, order_id)
     cursor.execute(query, values)
-    conn.commit()
+    connection.commit()
 
 
 #fee_table
 
 def db_create_pending_fee_table():
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         CREATE TABLE IF NOT EXISTS Pending_Fee (
@@ -646,12 +733,14 @@ def db_create_pending_fee_table():
         )
         """
         cursor.execute(query)
-        conn.commit()
+        connection.commit()
         return {"message": "Pending_Fee table created successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         query = """
         INSERT INTO Pending_Fee (adm_no, standard, fees)
@@ -659,12 +748,14 @@ def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
         """
         values = (adm_no, standard, fees)
         cursor.execute(query, values)
-        conn.commit()
+        connection.commit()
         return {"message": "Student fee record added successfully"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_get_student_fee(adm_no: str, month: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
@@ -682,6 +773,8 @@ def db_get_student_fee(adm_no: str, month: str):
         return {"error": str(e)}
 
 def db_update_fee_status(adm_no: str, month: str, date: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
@@ -692,13 +785,15 @@ def db_update_fee_status(adm_no: str, month: str, date: str):
 
         query = f"UPDATE Pending_Fee SET {month} = %s WHERE adm_no = %s"
         cursor.execute(query, (new_status, adm_no,))
-        conn.commit()
+        connection.commit()
 
         return {"message": f"Fee status for {month} updated to {new_status}"}
     except Exception as e:
         return {"error": str(e)}
 
 def db_get_fee_status(adm_no: str, month: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:

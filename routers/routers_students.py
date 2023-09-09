@@ -18,7 +18,7 @@ def validate_student_login(standard: str, section: str, roll_number: str, passwo
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid student credentials")
 
-@router.get("/needstudentinfo/{standard}/{section}/{roll_number}", response_model=dict)
+@router.get("/needstudentinfo/{standard}/{section}/{roll_number}")
 def get_student_info(standard: str, section: str, roll_number: str):
     roll_number_int = int(roll_number)  # Convert the string to an integer
     student_info = db_get_student_info(standard, section, roll_number_int)
@@ -28,19 +28,19 @@ def get_student_info(standard: str, section: str, roll_number: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student data not found")
 
 
-@router.get("/fetch_homework/{standard}/{section}", response_model=list)
+@router.get("/fetch_homework/{standard}/{section}")
 def fetch_homework_by_standard_section(standard: str, section: str):
     homework_data = db_fetch_homework_by_standard_section(standard, section)
     if "error" in homework_data:
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
 
-@router.get("/fetchcalendarevents", response_model=List[CalendarEvent])
+@router.get("/fetchcalendarevents")
 def fetch_calendar_events():
     events = db_fetch_all_calendar_events()
     return events
 
-@router.get("/fetchtimetablerecords/{standard}/{section}", response_model=List[Timetable])
+@router.get("/fetchtimetablerecords/{standard}/{section}")
 def fetch_timetable_records_by_standard_section(standard: str, section: str):
     timetables = db_fetch_timetable_records_by_standard_section(standard, section)
     if not timetables:

@@ -36,7 +36,7 @@ def delete_student_from_class(class_number: str, section: str, roll_number: int)
     else:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Student deletion failed")
 
-@router.get("/fetchstudents/{class_number}/{section}", response_model=List[ClassTable])
+@router.get("/fetchstudents/{class_number}/{section}")
 def fetch_students_from_class(class_number: str, section: str):
     students = db_fetch_students_from_class_admin(class_number, section)
     return students
@@ -55,7 +55,7 @@ def add_teacher_record(teacher: Teacher):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Teacher record added successfully."}
 
-@router.get("/fetchteacherrecords", response_model=List[Teacher])
+@router.get("/fetchteacherrecords",)
 def fetch_teacher_records():
     teachers = db_fetch_all_teacher_records()
     return teachers
@@ -82,7 +82,7 @@ def add_timetable_record(timetable: Timetable):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Timetable record added successfully."}
 
-@router.get("/fetchtimetablerecords", response_model=List[Timetable])
+@router.get("/fetchtimetablerecords")
 def fetch_timetable_records():
     timetables = db_fetch_all_timetable_records()
     return timetables
@@ -108,7 +108,7 @@ def add_calendar_event(event: CalendarEvent):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event added successfully."}
 
-@router.get("/fetchcalendarevents", response_model=List[CalendarEvent])
+@router.get("/fetchcalendarevents")
 def fetch_calendar_events():
     events = db_fetch_all_calendar_events()
     return events
