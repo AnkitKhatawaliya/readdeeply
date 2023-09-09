@@ -576,5 +576,142 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
 
 
 
-#Payment codes(methods)
+#Payment database codes(methods)
 
+
+def db_create_payment_tables():
+    query = """
+    CREATE TABLE IF NOT EXISTS Order_table (
+        order_ID VARCHAR(255),
+        adm_no VARCHAR(255),
+        fee_amount VARCHAR(255),
+        date_created VARCHAR(4),
+        date_modified VARCHAR(4)
+    );
+    CREATE TABLE IF NOT EXISTS Transaction_table (
+        transaction_ID VARCHAR(255),
+        order_ID VARCHAR(255),
+        payment_signature VARCHAR(255) DEFAULT 'yet to be added',
+        payment_status VARCHAR(255) DEFAULT 'pending'
+    );
+    """
+    values = ()
+    cursor.execute(query, values)
+    conn.commit()
+
+def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: str, date_modified: str):
+    query = """
+    INSERT INTO Order_table (order_ID, adm_no, fee_amount, date_created, date_modified)
+    VALUES (%s, %s, %s, %s, %s);
+    """
+    values = (order_id, adm_no, fee_amount, date_created, date_modified)
+    cursor.execute(query, values)
+    conn.commit()
+
+def db_create_transaction(order_id: str, transaction_id: str):
+    query = """
+    INSERT INTO Transaction_table (order_ID, transaction_ID)
+    VALUES (%s, %s);
+    """
+    values = (order_id, transaction_id)
+    cursor.execute(query, values)
+    conn.commit()
+
+def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
+    query = """
+    UPDATE Transaction_table
+    SET payment_signature = %s, payment_status = %s
+    WHERE order_ID = %s;
+    """
+    values = (payment_signature, staitus, order_id)
+    cursor.execute(query, values)
+    conn.commit()
+
+
+#fee_table
+
+def db_create_pending_fee_table():
+    try:
+        query = """
+        CREATE TABLE IF NOT EXISTS Pending_Fee (
+            adm_no VARCHAR(255),
+            standard VARCHAR(255),
+            fees VARCHAR(255),
+            september VARCHAR(255) DEFAULT 'pending',
+            october VARCHAR(255) DEFAULT 'pending',
+            november VARCHAR(255) DEFAULT 'pending',
+            december VARCHAR(255) DEFAULT 'pending',
+            january VARCHAR(255) DEFAULT 'pending',
+            february VARCHAR(255) DEFAULT 'pending',
+            march VARCHAR(255) DEFAULT 'pending'
+        )
+        """
+        cursor.execute(query)
+        conn.commit()
+        return {"message": "Pending_Fee table created successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
+    try:
+        query = """
+        INSERT INTO Pending_Fee (adm_no, standard, fees)
+        VALUES (%s, %s, %s)
+        """
+        values = (adm_no, standard, fees)
+        cursor.execute(query, values)
+        conn.commit()
+        return {"message": "Student fee record added successfully"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_get_student_fee(adm_no: str, month: str):
+    try:
+        # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
+        if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            raise ValueError("Invalid month provided")
+
+        query = f"SELECT {month} FROM Pending_Fee WHERE adm_no = %s"
+        cursor.execute(query, (adm_no,))
+        fee_status = cursor.fetchone()
+
+        if fee_status:
+            return {"fee_status": fee_status[month]}
+        else:
+            return {"message": f"No fee record found for adm_no {adm_no}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_update_fee_status(adm_no: str, month: str, date: str):
+    try:
+        # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
+        if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            raise ValueError("Invalid month provided")
+
+        # Construct the new fee status value in the format "submitter_date"
+        new_status = f"submitted_{date}"
+
+        query = f"UPDATE Pending_Fee SET {month} = %s WHERE adm_no = %s"
+        cursor.execute(query, (new_status, adm_no,))
+        conn.commit()
+
+        return {"message": f"Fee status for {month} updated to {new_status}"}
+    except Exception as e:
+        return {"error": str(e)}
+
+def db_get_fee_status(adm_no: str, month: str):
+    try:
+        # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
+        if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            raise ValueError("Invalid month provided")
+
+        query = f"SELECT {month} FROM Pending_Fee WHERE adm_no = %s"
+        cursor.execute(query, (adm_no,))
+        fee_status = cursor.fetchone()
+
+        if fee_status:
+            return {"status": fee_status[month]}
+        else:
+            return {"message": f"No fee record found for adm_no {adm_no}"}
+    except Exception as e:
+        return {"error": str(e)}

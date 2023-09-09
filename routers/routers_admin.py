@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException , status
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 from database import db_create_class_table, db_fetch_students_from_class_admin, db_add_student_to_class, \
-    db_delete_student_from_class
+    db_delete_student_from_class, db_create_pending_fee_table, db_add_student_fee_record, db_get_fee_status
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
 from database import db_create_calendar_table , db_fetch_all_calendar_events , db_add_calendar_event , db_delete_calendar_event
@@ -121,3 +121,27 @@ def delete_calendar_event(sr_no: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Calendar event deleted successfully."}
 
+#fee records
+@router.post("/creatependingfeetable", status_code=status.HTTP_201_CREATED)
+def create_pending_fee_table():
+    response = db_create_pending_fee_table()
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
+    return {"message": "Pending_Fee table created successfully."}
+
+
+@router.post("/addstudentfeerecord/{adm_no}/{standard}/{fees}", status_code=status.HTTP_201_CREATED)
+def add_student_fee_record(adm_no: str, standard: str, fees: str):
+    response = db_add_student_fee_record(adm_no, standard, fees)
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
+    return {"message": "Student fee record added successfully."}
+
+@router.get("/getstatusof/{adm_no}/{month}")
+def get_fee_status(adm_no: str, month: str):
+    response = db_get_fee_status(adm_no, month)
+    if "error" in response:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
+    elif "message" in response:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["message"])
+    return response

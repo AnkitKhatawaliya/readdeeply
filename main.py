@@ -1,11 +1,17 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi import HTTPException
 from routers.routers_admin import router as admin_router
 from routers.routers_teachers import router as teacher_router
 from routers.routers_students import router as student_router
 from routers.routers_parents import router as parent_router
 
 app = FastAPI()
+
+@app.exception_handlers(HTTPException)
+async def http_exception_handler(request , exc):
+    #Log exc here
+    return {"error": str(exc)}
+
 
 @app.get("/")
 def redroot():

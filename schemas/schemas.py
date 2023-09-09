@@ -75,3 +75,14 @@ class Homework(BaseModel):
 
 
 
+class OrderCreate(BaseModel):
+    order_ID: str
+    adm_no: str
+    fee_amount: str
+    date_created: str
+    date_modified: str
+
+class TransactionUpdate(BaseModel):
+    transaction_ID: str
+    payment_signature: str
+    payment_status: str
