@@ -2,7 +2,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from schemas.schemas import ClassTable , Teacher , Timetable , CalendarEvent
 from datetime import datetime
-
 # conn = psycopg2.connect(
 #     host='localhost',
 #     database='wow',
