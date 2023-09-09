@@ -1,12 +1,9 @@
-from typing import List
-
 from fastapi import APIRouter, HTTPException, status
 
 from database import db_validate_parent, db_get_student_info, db_fetch_homework_by_standard_section, \
     db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks, \
     db_create_order, db_create_transaction, db_create_payment_tables, db_update_transaction, db_get_student_fee, \
     db_update_fee_status
-from schemas.schemas import CalendarEvent, Timetable
 
 router = APIRouter()
 
@@ -121,7 +118,7 @@ def get_student_fee(adm_no: str, month: str):
     return response
 
 
-@router.put("/updatefeestatus/{adm_no}/{month}/{date}", status_code=status.HTTP_200_OK)
+@router.post("/updatefeestatus/{adm_no}/{month}/{date}", status_code=status.HTTP_200_OK)
 def update_fee_status(adm_no: str, month: str, date: str):
     response = db_update_fee_status(adm_no, month, date)
     if "error" in response:

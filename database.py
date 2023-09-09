@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2 import pool
-from psycopg2.extras import RealDictCursor
 from schemas.schemas import ClassTable, Teacher, Timetable, CalendarEvent
 from datetime import datetime
 
@@ -94,46 +93,29 @@ def db_delete_student_from_class(class_number: str, section: str, roll_number: i
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
+
 def db_fetch_students_from_class_admin(class_number: str, section: str):
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
         query = f"SELECT * FROM {table_name}"
-        cursor = connection.cursor()
         cursor.execute(query)
-        students = cursor.fetchall()
-        return students  # Return list of students
-    except Exception as e:
-        return {"error": str(e)}  # Return error message
 
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
 
-def db_fetch_students_from_class(class_number: str, section: str):
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    try:
-        table_name = f"class{class_number}{section}"
-        # List the specific columns you want to fetch
-        columns_to_fetch = [
-            "roll_number",
-            "adm_no",
-            "name",
-            "password",
-            "dob",
-            "gender",
-            "parent_name",
-            "par_con",
-            "parent_password"
+        # Fetch data and format as dictionaries
+        students = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
         ]
-        columns_str = ", ".join(columns_to_fetch)
 
-        query = f"SELECT {columns_str} FROM {table_name}"
-        cursor = connection.cursor()
-        cursor.execute(query)
-        students = cursor.fetchall()
-        return students  # Return list of students with specified columns
+        return students  # Return list of dictionaries
     except Exception as e:
         return {"error": str(e)}  # Return error message
+
+
 
 
 
@@ -204,10 +186,20 @@ def db_fetch_all_teacher_records():
     try:
         query = "SELECT * FROM Teacher_records"
         cursor.execute(query)
-        teachers = cursor.fetchall()
-        return teachers
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as dictionaries
+        teachers = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return teachers  # Return list of dictionaries
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}  # Return error message
+
 
 def db_delete_teacher_record(teacher_id: int):
     connection = get_db_connection()
@@ -274,16 +266,27 @@ def db_add_timetable_record(timetable: Timetable):
     except Exception as e:
         return {"error": str(e)}
 
+
 def db_fetch_all_timetable_records():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
         query = "SELECT * FROM Time_table"
         cursor.execute(query)
-        timetables = cursor.fetchall()
-        return timetables
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as dictionaries
+        timetables = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return timetables  # Return list of dictionaries
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}  # Return error message
+
 
 def db_delete_timetable_record(sr_no: int):
     connection = get_db_connection()
@@ -335,16 +338,27 @@ def db_add_calendar_event(event: CalendarEvent):
     except Exception as e:
         return {"error": str(e)}
 
-def db_fetch_all_calendar_events():
+
+def     db_fetch_all_calendar_events():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
         query = "SELECT * FROM Calendar"
         cursor.execute(query)
-        events = cursor.fetchall()
-        return events
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as dictionaries
+        events = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return events  # Return list of dictionaries
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)}  # Return error message
+
 
 def db_delete_calendar_event(sr_no: int):
     connection = get_db_connection()
@@ -382,6 +396,7 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
     except Exception as e:
         return True
 
+
 def db_fetch_students_from_class(standard: str, section: str):
     connection = get_db_connection()
     cursor = connection.cursor()
@@ -389,8 +404,17 @@ def db_fetch_students_from_class(standard: str, section: str):
         table_name = f"class{standard}{section}"
         query = f"SELECT roll_number, name FROM {table_name}"
         cursor.execute(query)
-        students = cursor.fetchall()
-        return students  # Return list of students' roll_number and name
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        students = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return students  # Return list of dictionaries with 'roll_number' and 'name'
     except Exception as e:
         return {"error": str(e)}  # Return error message
 
@@ -453,9 +477,17 @@ def db_get_attendance(standard: str, section: str):
         # Query to fetch all columns from the table
         query = f"SELECT * FROM {table_name}"
         cursor.execute(query)
-        records = cursor.fetchall()
 
-        return records
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        records = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return records  # Return a list of dictionaries
     except Exception as e:
         return {"error": str(e)}
 
@@ -469,9 +501,17 @@ def db_get_marks(standard: str, section: str):
         # Query to fetch all columns from the table
         query = f"SELECT * FROM {table_name}"
         cursor.execute(query)
-        records = cursor.fetchall()
 
-        return records
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        records = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return records  # Return a list of dictionaries
     except Exception as e:
         return {"error": str(e)}
 
@@ -487,8 +527,17 @@ def db_fetch_homework_by_standard_section(standard: str, section: str):
         WHERE standard = %s AND section = %s
         """
         cursor.execute(query, (standard, section))
-        homework_data = cursor.fetchall()
-        return homework_data
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        homework_data = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return homework_data  # Return a list of dictionaries
     except Exception as e:
         return {"error": str(e)}
 
@@ -573,8 +622,17 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
         WHERE standard = %s AND section = %s AND subject = %s
         """
         cursor.execute(query, (standard, section, subject))
-        homework_data = cursor.fetchall()
-        return homework_data
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        homework_data = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return homework_data  # Return a list of dictionaries
     except Exception as e:
         return {"error": str(e)}
 
@@ -592,11 +650,17 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
         student_info = cursor.fetchone()
 
         if student_info:
+            # Fetch column names
+            column_names = [desc[0] for desc in cursor.description]
+
+            # Format student_info as a dictionary with column names as keys
+            student_data = {column_name: value for column_name, value in zip(column_names, student_info)}
+
             # Assuming the password is stored in the 'password' field of the database
-            db_password = student_info.get('password')
+            db_password = student_data.get('password')
 
             if db_password == password:
-                return student_info
+                return student_data
             else:
                 return None  # Passwords don't match, return None
         else:
@@ -613,11 +677,19 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
         table_name = f"class{standard}{section}"
         query = f"SELECT * FROM {table_name} WHERE roll_number = %s"
         cursor.execute(query, (roll_number,))
-        student_info = cursor.fetchone()
-        print(student_info)
-        return student_info
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a dictionary
+        student_info = {
+            column_name: value for column_name, value in zip(column_names, cursor.fetchone())
+        }
+
+        return student_info  # Return a dictionary
     except Exception as e:
         return None
+
 
 def db_validate_parent(standard: str, section: str, roll_number: int, password: str):
     connection = get_db_connection()
@@ -650,11 +722,19 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
         query = "SELECT * FROM Time_table WHERE Standard = %s AND Section = %s"
         values = (standard, section)
         cursor.execute(query, values)
-        timetables = cursor.fetchall()
-        return timetables
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as a list of dictionaries
+        timetables = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        return timetables  # Return a list of dictionaries
     except Exception as e:
         return {"error": str(e)}
-
 
 
 #Payment database codes(methods)
@@ -766,12 +846,15 @@ def db_get_student_fee(adm_no: str, month: str):
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
             raise ValueError("Invalid month provided")
 
-        query = f"SELECT {month} FROM Pending_Fee WHERE adm_no = %s"
+        query = f"SELECT {month}, fees FROM Pending_Fee WHERE adm_no = %s"
         cursor.execute(query, (adm_no,))
         fee_status = cursor.fetchone()
-
         if fee_status:
-            return {"fee_status": fee_status[month]}
+            fees = fee_status[3]
+            if(fee_status[month]=="pending"):
+                return {"Pending": fees}
+            else:
+                return {"fee_status":"Submitted"}
         else:
             return {"message": f"No fee record found for adm_no {adm_no}"}
     except Exception as e:

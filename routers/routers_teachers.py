@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException , status
 from typing import List, Dict, Union
-from schemas.schemas import Homework, CalendarEvent, Timetable
+from schemas.schemas import Homework
 from database import db_validate_teacher_credentials, db_fetch_students_from_class, db_fetch_all_calendar_events, \
     db_fetch_timetable_records_by_standard_section
 from database import db_table_exists , db_fetch_homework_by_standard_section_subject

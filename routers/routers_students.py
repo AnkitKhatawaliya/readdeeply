@@ -1,9 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from database import db_validate_student, db_get_student_info, db_fetch_homework_by_standard_section, \
     db_fetch_all_calendar_events, db_fetch_timetable_records_by_standard_section, db_get_attendance, db_get_marks
-from schemas.schemas import CalendarEvent, Timetable
-from typing import List
-
 
 router = APIRouter()
 

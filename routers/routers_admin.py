@@ -5,7 +5,6 @@ from database import db_create_class_table, db_fetch_students_from_class_admin, 
 from database import db_create_teacher_records_table , db_fetch_all_teacher_records , db_insert_teacher_record , db_delete_teacher_record
 from database import db_create_timetable_table , db_fetch_all_timetable_records , db_add_timetable_record , db_delete_timetable_record
 from database import db_create_calendar_table , db_fetch_all_calendar_events , db_add_calendar_event , db_delete_calendar_event
-from typing import List
 
 router = APIRouter()
 
