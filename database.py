@@ -48,8 +48,12 @@ def db_create_class_table(class_number: str, section: str):
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": f"Table {table_name} created successfully"}  # Return success message
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -74,8 +78,12 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
         )
         cursor.execute(query, values)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Student added successfully"}  # Return success message
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 def db_delete_student_from_class(class_number: str, section: str, roll_number: int):
@@ -89,8 +97,12 @@ def db_delete_student_from_class(class_number: str, section: str, roll_number: i
         """
         cursor.execute(query, (roll_number,))
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Student deleted successfully"}  # Return success message
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -110,9 +122,12 @@ def db_fetch_students_from_class_admin(class_number: str, section: str):
             {column_name: value for column_name, value in zip(column_names, row)}
             for row in cursor.fetchall()
         ]
-
+        cursor.close()
+        connection.close()
         return students  # Return list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -125,8 +140,12 @@ def db_table_exists(table_name: str):
     try:
         query = f"SELECT 1 FROM {table_name} LIMIT 1"
         cursor.execute(query)
+        cursor.close()
+        connection.close()
         return True
     except:
+        cursor.close()
+        connection.close()
         return False
 
     
@@ -149,8 +168,12 @@ def db_create_teacher_records_table():
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Teacher_records table created successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_insert_teacher_record(teacher: Teacher):
@@ -175,6 +198,8 @@ def db_insert_teacher_record(teacher: Teacher):
         connection.commit()
         return {"message": "Teacher record added successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 # Your existing db_fetch_all_teacher_records and db_delete_teacher_record methods remain unchanged
@@ -196,8 +221,12 @@ def db_fetch_all_teacher_records():
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return teachers  # Return list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -208,8 +237,12 @@ def db_delete_teacher_record(teacher_id: int):
         query = "DELETE FROM Teacher_records WHERE ID = %s"
         cursor.execute(query, (teacher_id,))
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Teacher record deleted successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -235,8 +268,12 @@ def db_create_timetable_table():
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Time_table table created successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_add_timetable_record(timetable: Timetable):
@@ -262,8 +299,12 @@ def db_add_timetable_record(timetable: Timetable):
         )
         cursor.execute(query, values)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Timetable record added successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -283,8 +324,12 @@ def db_fetch_all_timetable_records():
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return timetables  # Return list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -295,8 +340,12 @@ def db_delete_timetable_record(sr_no: int):
         query = "DELETE FROM Time_table WHERE Sr_no = %s"
         cursor.execute(query, (sr_no,))
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Timetable record deleted successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_create_calendar_table():
@@ -314,8 +363,12 @@ def db_create_calendar_table():
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Calendar table created successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_add_calendar_event(event: CalendarEvent):
@@ -334,12 +387,16 @@ def db_add_calendar_event(event: CalendarEvent):
         )
         cursor.execute(query, values)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Calendar event added successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
-def     db_fetch_all_calendar_events():
+def db_fetch_all_calendar_events():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
@@ -355,8 +412,12 @@ def     db_fetch_all_calendar_events():
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return events  # Return list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -367,8 +428,12 @@ def db_delete_calendar_event(sr_no: int):
         query = "DELETE FROM Calendar WHERE Sr_no = %s"
         cursor.execute(query, (sr_no,))
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Calendar event deleted successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 #Teacher methods
@@ -395,11 +460,17 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
 
         # Check if 'password' key exists in the teacher_info dictionary
         if teacher[8] == password:
+            cursor.close()
+            connection.close()
             return teacher_info  # Credentials valid
         else:
+            cursor.close()
+            connection.close()
             return False  # Incorrect password
 
     except Exception as e:
+        cursor.close()
+        connection.close()
         return True
 
 
@@ -420,8 +491,12 @@ def db_fetch_students_from_class(standard: str, section: str):
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return students  # Return list of dictionaries with 'roll_number' and 'name'
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}  # Return error message
 
 
@@ -443,8 +518,12 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
             cursor.execute(query, (status, student_roll_number))
         connection.commit()
 
+        cursor.close()
+        connection.close()
         return {"message": "Attendance marked successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 # database.py
@@ -468,9 +547,12 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
             update_query = f"UPDATE {table_name} SET {marks_column} = %s WHERE roll_number = %s"
             cursor.execute(update_query, (marks, roll_number))
         connection.commit()
-
+        cursor.close()
+        connection.close()
         return {"message": "Marks added successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -493,8 +575,12 @@ def db_get_attendance(standard: str, section: str):
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return records  # Return a list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -517,8 +603,12 @@ def db_get_marks(standard: str, section: str):
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return records  # Return a list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -543,8 +633,12 @@ def db_fetch_homework_by_standard_section(standard: str, section: str):
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return homework_data  # Return a list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -568,8 +662,12 @@ def db_create_homework_table():
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "homework_table created successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_add_class_homework(homework_data):
@@ -586,8 +684,12 @@ def db_add_class_homework(homework_data):
             homework_data.thursday, homework_data.friday, homework_data.saturday
         ))
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": f"Default homework added for {homework_data.standard}-{homework_data.section} {homework_data.subject}"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_update_homework(standard: str, section: str, subject: str, day: str, text: str):
@@ -602,6 +704,8 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
         row = cursor.fetchone()
 
         if not row:
+            cursor.close()
+            connection.close()
             return {"error": "Homework data not found"}
 
         update_query = f"""
@@ -612,8 +716,12 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
         cursor.execute(update_query, (text, row["id"]))
         connection.commit()
 
+        cursor.close()
+        connection.close()
         return {"message": f"{day}'s homework updated successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -638,8 +746,12 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return homework_data  # Return a list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -666,13 +778,21 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
             db_password = student_info[3]
             print(db_password)
             if db_password == password:
+                cursor.close()
+                connection.close()
                 return student_data
             else:
+                cursor.close()
+                connection.close()
                 return None  # Passwords don't match, return None
         else:
+            cursor.close()
+            connection.close()
             return None  # Student not found in the database
 
     except Exception as e:
+        cursor.close()
+        connection.close()
         return None
 
 
@@ -692,8 +812,12 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
             column_name: value for column_name, value in zip(column_names, cursor.fetchone())
         }
 
+        cursor.close()
+        connection.close()
         return student_info  # Return a dictionary
     except Exception as e:
+        cursor.close()
+        connection.close()
         return None
 
 
@@ -712,13 +836,21 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
             print(db_password)
 
             if db_password == password:
+                cursor.close()
+                connection.close()
                 return student_info
             else:
+                cursor.close()
+                connection.close()
                 return None  # Passwords don't match, return None
         else:
+            cursor.close()
+            connection.close()
             return None  # Student not found in the database
 
     except Exception as e:
+        cursor.close()
+        connection.close()
         return None
 
 
@@ -739,8 +871,12 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
             for row in cursor.fetchall()
         ]
 
+        cursor.close()
+        connection.close()
         return timetables  # Return a list of dictionaries
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 
@@ -768,6 +904,8 @@ def db_create_payment_tables():
     values = ()
     cursor.execute(query, values)
     connection.commit()
+    cursor.close()
+    connection.close()
 
 def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: str, date_modified: str):
     connection = get_db_connection()
@@ -779,6 +917,8 @@ def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: s
     values = (order_id, adm_no, fee_amount, date_created, date_modified)
     cursor.execute(query, values)
     connection.commit()
+    cursor.close()
+    connection.close()
 
 def db_create_transaction(order_id: str, transaction_id: str):
     connection = get_db_connection()
@@ -790,6 +930,8 @@ def db_create_transaction(order_id: str, transaction_id: str):
     values = (order_id, transaction_id)
     cursor.execute(query, values)
     connection.commit()
+    cursor.close()
+    connection.close()
 
 def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
     connection = get_db_connection()
@@ -802,6 +944,8 @@ def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
     values = (payment_signature, staitus, order_id)
     cursor.execute(query, values)
     connection.commit()
+    cursor.close()
+    connection.close()
 
 
 #fee_table
@@ -826,8 +970,12 @@ def db_create_pending_fee_table():
         """
         cursor.execute(query)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Pending_Fee table created successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
@@ -841,8 +989,12 @@ def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
         values = (adm_no, standard, fees)
         cursor.execute(query, values)
         connection.commit()
+        cursor.close()
+        connection.close()
         return {"message": "Student fee record added successfully"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_get_student_fee(adm_no: str, month: str):
@@ -851,6 +1003,8 @@ def db_get_student_fee(adm_no: str, month: str):
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            cursor.close()
+            connection.close()
             raise ValueError("Invalid month provided")
 
         query = f"SELECT {month}, fees FROM Pending_Fee WHERE adm_no = %s"
@@ -859,12 +1013,20 @@ def db_get_student_fee(adm_no: str, month: str):
         if fee_status:
             fees = fee_status[3]
             if(fee_status[month]=="pending"):
+                cursor.close()
+                connection.close()
                 return {"Pending": fees}
             else:
+                cursor.close()
+                connection.close()
                 return {"fee_status":"Submitted"}
         else:
+            cursor.close()
+            connection.close()
             return {"message": f"No fee record found for adm_no {adm_no}"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_update_fee_status(adm_no: str, month: str, date: str):
@@ -873,6 +1035,8 @@ def db_update_fee_status(adm_no: str, month: str, date: str):
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            cursor.close()
+            connection.close()
             raise ValueError("Invalid month provided")
 
         # Construct the new fee status value in the format "submitter_date"
@@ -882,8 +1046,12 @@ def db_update_fee_status(adm_no: str, month: str, date: str):
         cursor.execute(query, (new_status, adm_no,))
         connection.commit()
 
+        cursor.close()
+        connection.close()
         return {"message": f"Fee status for {month} updated to {new_status}"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
 
 def db_get_fee_status(adm_no: str, month: str):
@@ -892,6 +1060,8 @@ def db_get_fee_status(adm_no: str, month: str):
     try:
         # Ensure the provided month matches the column name (e.g., "september", "october", etc.)
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
+            cursor.close()
+            connection.close()
             raise ValueError("Invalid month provided")
 
         query = f"SELECT {month} FROM Pending_Fee WHERE adm_no = %s"
@@ -899,8 +1069,14 @@ def db_get_fee_status(adm_no: str, month: str):
         fee_status = cursor.fetchone()
 
         if fee_status:
+            cursor.close()
+            connection.close()
             return {"status": fee_status[month]}
         else:
+            cursor.close()
+            connection.close()
             return {"message": f"No fee record found for adm_no {adm_no}"}
     except Exception as e:
+        cursor.close()
+        connection.close()
         return {"error": str(e)}
