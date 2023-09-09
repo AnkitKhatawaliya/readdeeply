@@ -394,7 +394,7 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
         teacher_info = {column_name: value for column_name, value in zip(column_names, teacher)}
 
         # Check if 'password' key exists in the teacher_info dictionary
-        if teacher_info[8] == password:
+        if teacher[8] == password:
             return teacher_info  # Credentials valid
         else:
             return False  # Incorrect password
