@@ -3,21 +3,11 @@ from psycopg2 import pool
 from schemas.schemas import ClassTable, Teacher, Timetable, CalendarEvent
 from datetime import datetime
 
-# conn = psycopg2.connect(
-#     host='localhost',
-#     database='wow',
-#     user='postgres',
-#     password='Post@2606',
-#     cursor_factory=RealDictCursor
-# )
-#
-# cursor = connection.cursor()
-# print("Connection was successful.")
 
 # Create a connection pool
 db_pool = psycopg2.pool.SimpleConnectionPool(
-    minconn=10,
-    maxconn=50,  # Adjust this value based on your needs
+    minconn=1,
+    maxconn=10,  # Adjust this value based on your needs
     dsn="postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-hidden-fire-57816100.us-east-2.aws.neon.tech/neondb"
 )
 
@@ -25,6 +15,34 @@ db_pool = psycopg2.pool.SimpleConnectionPool(
 def get_db_connection():
     print("Connection was successful.")
     return db_pool.getconn()
+
+
+def db_fetch_students_from_class_admin(class_number: str, section: str):
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        table_name = f"class{class_number}{section}"
+        query = f"SELECT * FROM {table_name}"
+        cursor.execute(query)
+
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+
+        # Fetch data and format as dictionaries
+        students = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
+
+        cursor.close()
+        connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
+        return students  # Return list of dictionaries
+    except Exception as e:
+        cursor.close()
+        connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
+        return {"error": str(e)}  # Return error message
 
 
 def db_create_class_table(class_number: str, section: str):
@@ -49,10 +67,12 @@ def db_create_class_table(class_number: str, section: str):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": f"Table {table_name} created successfully"}  # Return success message
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -79,10 +99,12 @@ def db_add_student_to_class(class_number: str, section: str, student: ClassTable
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Student added successfully"}  # Return success message
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -99,36 +121,12 @@ def db_delete_student_from_class(class_number: str, section: str, roll_number: i
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Student deleted successfully"}  # Return success message
     except Exception as e:
         cursor.close()
         connection.close()
-        return {"error": str(e)}  # Return error message
-
-
-def db_fetch_students_from_class_admin(class_number: str, section: str):
-    connection = get_db_connection()
-    cursor = connection.cursor()
-    try:
-        table_name = f"class{class_number}{section}"
-        query = f"SELECT * FROM {table_name}"
-        cursor.execute(query)
-
-        # Fetch column names
-        column_names = [desc[0] for desc in cursor.description]
-
-        # Fetch data and format as dictionaries
-        students = [
-            {column_name: value for column_name, value in zip(column_names, row)}
-            for row in cursor.fetchall()
-        ]
-
-        cursor.close()
-        connection.close()
-        return students  # Return list of dictionaries
-    except Exception as e:
-        cursor.close()
-        connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -140,10 +138,12 @@ def db_table_exists(table_name: str):
         cursor.execute(query)
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return True
     except:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return False
 
 
@@ -168,10 +168,12 @@ def db_create_teacher_records_table():
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Teacher_records table created successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -181,7 +183,7 @@ def db_insert_teacher_record(teacher: Teacher):
     try:
         query = """
         INSERT INTO Teacher_records (Name, Primary_class, Subject, Date_of_joining, Degree, Contact_number, Other_classes, Passw)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)  -- New columns added
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         values = (
             teacher.name,
@@ -199,6 +201,7 @@ def db_insert_teacher_record(teacher: Teacher):
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -223,10 +226,12 @@ def db_fetch_all_teacher_records():
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return teachers  # Return list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -239,10 +244,12 @@ def db_delete_teacher_record(teacher_id: int):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Teacher record deleted successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -270,10 +277,12 @@ def db_create_timetable_table():
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Time_table table created successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -302,10 +311,12 @@ def db_add_timetable_record(timetable: Timetable):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Timetable record added successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -327,10 +338,12 @@ def db_fetch_all_timetable_records():
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return timetables  # Return list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -343,10 +356,12 @@ def db_delete_timetable_record(sr_no: int):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Timetable record deleted successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -367,10 +382,12 @@ def db_create_calendar_table():
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Calendar table created successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -392,37 +409,37 @@ def db_add_calendar_event(event: CalendarEvent):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Calendar event added successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
 def db_fetch_all_calendar_events():
-    def db_fetch_all_calendar_events():
-        connection = get_db_connection()
-        cursor = connection.cursor()
-        try:
-            query = "SELECT * FROM Calendar"
-            cursor.execute(query)
+    connection = get_db_connection()
+    cursor = connection.cursor()
+    try:
+        query = "SELECT * FROM Calendar"
+        cursor.execute(query)
 
-            # Fetch column names
-            column_names = [desc[0] for desc in cursor.description]
+        # Fetch column names
+        column_names = [desc[0] for desc in cursor.description]
+        # Fetch data and format as dictionaries
+        events = [
+            {column_name: value for column_name, value in zip(column_names, row)}
+            for row in cursor.fetchall()
+        ]
 
-            # Fetch data and format as dictionaries
-            events = [
-                {column_name: value for column_name, value in zip(column_names, row)}
-                for row in cursor.fetchall()
-            ]
-
-            cursor.close()
-            connection.close()
-            return events  # Return list of dictionaries
-        except Exception as e:
-            cursor.close()
-            connection.close()
-            return {"error": str(e)}  # Return error message
+        cursor.close()
+        connection.close()
+        return events  # Return list of dictionaries
+    except Exception as e:
+        cursor.close()
+        connection.close()
+        return {"error": str(e)}  # Return error message
 
 
 def db_delete_calendar_event(sr_no: int):
@@ -434,10 +451,12 @@ def db_delete_calendar_event(sr_no: int):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Calendar event deleted successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -476,6 +495,7 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return True
 
 
@@ -498,10 +518,12 @@ def db_fetch_students_from_class(standard: str, section: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return students  # Return list of dictionaries with 'roll_number' and 'name'
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -525,10 +547,12 @@ def db_mark_student_attendance(standard: str, section: str, attendance_data: dic
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Attendance marked successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -556,10 +580,12 @@ def db_add_marks(standard: str, section: str, subject: str, marks_data: list):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Marks added successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -584,10 +610,12 @@ def db_get_attendance(standard: str, section: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return records  # Return a list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -612,10 +640,13 @@ def db_get_marks(standard: str, section: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return records  # Return a list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -642,10 +673,12 @@ def db_fetch_homework_by_standard_section(standard: str, section: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return homework_data  # Return a list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -671,10 +704,12 @@ def db_create_homework_table():
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "homework_table created successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -694,11 +729,13 @@ def db_add_class_homework(homework_data):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {
             "message": f"Default homework added for {homework_data.standard}-{homework_data.section} {homework_data.subject}"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -728,10 +765,12 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": f"{day}'s homework updated successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -758,10 +797,12 @@ def db_fetch_homework_by_standard_section_subject(standard: str, section: str, s
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return homework_data  # Return a list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -786,7 +827,6 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
 
             # Assuming the password is stored in the 'password' field of the database
             db_password = student_info[3]
-            print(db_password)
             if db_password == password:
                 cursor.close()
                 connection.close()
@@ -803,6 +843,7 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return None
 
 
@@ -824,10 +865,12 @@ def db_get_student_info(standard: str, section: str, roll_number: int):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return student_info  # Return a dictionary
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return None
 
 
@@ -861,6 +904,7 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return None
 
 
@@ -883,10 +927,12 @@ def db_fetch_timetable_records_by_standard_section(standard: str, section: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return timetables  # Return a list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -985,10 +1031,12 @@ def db_create_pending_fee_table():
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Pending_Fee table created successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -1005,10 +1053,12 @@ def db_add_student_fee_record(adm_no: str, standard: str, fees: str):
         connection.commit()
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": "Student fee record added successfully"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -1042,6 +1092,7 @@ def db_get_student_fee(adm_no: str, month: str):
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -1064,10 +1115,12 @@ def db_update_fee_status(adm_no: str, month: str, date: str):
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"message": f"Fee status for {month} updated to {new_status}"}
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
 
@@ -1096,4 +1149,5 @@ def db_get_fee_status(adm_no: str, month: str):
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
