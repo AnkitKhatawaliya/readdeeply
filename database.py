@@ -754,13 +754,13 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
             cursor.close()
             connection.close()
             return {"error": "Homework data not found"}
-
+        print("found")
         update_query = f"""
         UPDATE homework_table
         SET {day} = %s
-        WHERE id = %s
+        WHERE subject = %s
         """
-        cursor.execute(update_query, (text, row["id"]))
+        cursor.execute(update_query, (text, subject))
         connection.commit()
 
         cursor.close()
