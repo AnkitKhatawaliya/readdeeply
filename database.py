@@ -435,10 +435,12 @@ def db_fetch_all_calendar_events():
 
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return events  # Return list of dictionaries
     except Exception as e:
         cursor.close()
         connection.close()
+        db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}  # Return error message
 
 
@@ -486,10 +488,12 @@ def db_validate_teacher_credentials(teacher_id: str, password: str):
         if teacher[8] == password:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return teacher_info  # Credentials valid
         else:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return False  # Incorrect password
 
     except Exception as e:
@@ -645,7 +649,6 @@ def db_get_marks(standard: str, section: str):
     except Exception as e:
         cursor.close()
         connection.close()
-
         db_pool.putconn(connection)  # Release the connection back to the pool
         return {"error": str(e)}
 
@@ -753,6 +756,7 @@ def db_update_homework(standard: str, section: str, subject: str, day: str, text
         if not row:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return {"error": "Homework data not found"}
         print("found")
         update_query = f"""
@@ -830,14 +834,17 @@ def db_validate_student(standard: str, section: str, roll_number: int, password:
             if db_password == password:
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return student_data
             else:
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return None  # Passwords don't match, return None
         else:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return None  # Student not found in the database
 
     except Exception as e:
@@ -891,14 +898,17 @@ def db_validate_parent(standard: str, section: str, roll_number: int, password: 
             if db_password == password:
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return student_info
             else:
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return None  # Passwords don't match, return None
         else:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return None  # Student not found in the database
 
     except Exception as e:
@@ -962,6 +972,7 @@ def db_create_payment_tables():
     connection.commit()
     cursor.close()
     connection.close()
+    db_pool.putconn(connection)  # Release the connection back to the pool
 
 
 def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: str, date_modified: str):
@@ -976,6 +987,7 @@ def db_create_order(order_id: str, adm_no: str, fee_amount: str, date_created: s
     connection.commit()
     cursor.close()
     connection.close()
+    db_pool.putconn(connection)  # Release the connection back to the pool
 
 
 def db_create_transaction(order_id: str, transaction_id: str):
@@ -990,6 +1002,7 @@ def db_create_transaction(order_id: str, transaction_id: str):
     connection.commit()
     cursor.close()
     connection.close()
+    db_pool.putconn(connection)  # Release the connection back to the pool
 
 
 def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
@@ -1005,6 +1018,7 @@ def db_update_transaction(order_id: str, payment_signature: str, staitus: str):
     connection.commit()
     cursor.close()
     connection.close()
+    db_pool.putconn(connection)  # Release the connection back to the pool
 
 
 # fee_table
@@ -1070,6 +1084,7 @@ def db_get_student_fee(adm_no: str, month: str):
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             raise ValueError("Invalid month provided")
 
         query = f"SELECT {month}, fees FROM Pending_Fee WHERE adm_no = %s"
@@ -1080,14 +1095,17 @@ def db_get_student_fee(adm_no: str, month: str):
             if (fee_status[month] == "pending"):
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return {"Pending": fees}
             else:
                 cursor.close()
                 connection.close()
+                db_pool.putconn(connection)  # Release the connection back to the pool
                 return {"fee_status": "Submitted"}
         else:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return {"message": f"No fee record found for adm_no {adm_no}"}
     except Exception as e:
         cursor.close()
@@ -1104,6 +1122,7 @@ def db_update_fee_status(adm_no: str, month: str, date: str):
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             raise ValueError("Invalid month provided")
 
         # Construct the new fee status value in the format "submitter_date"
@@ -1132,6 +1151,7 @@ def db_get_fee_status(adm_no: str, month: str):
         if month.lower() not in ["september", "october", "november", "december", "january", "february", "march"]:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             raise ValueError("Invalid month provided")
 
         query = f"SELECT {month} FROM Pending_Fee WHERE adm_no = %s"
@@ -1141,10 +1161,12 @@ def db_get_fee_status(adm_no: str, month: str):
         if fee_status:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return {"status": fee_status[month]}
         else:
             cursor.close()
             connection.close()
+            db_pool.putconn(connection)  # Release the connection back to the pool
             return {"message": f"No fee record found for adm_no {adm_no}"}
     except Exception as e:
         cursor.close()
