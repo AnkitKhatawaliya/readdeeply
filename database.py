@@ -22,7 +22,7 @@ def db_fetch_students_from_class_admin(class_number: str, section: str):
     cursor = connection.cursor()
     try:
         table_name = f"class{class_number}{section}"
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {table_name} ORDER BY roll_number"
         cursor.execute(query)
 
         # Fetch column names
@@ -212,7 +212,7 @@ def db_fetch_all_teacher_records():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
-        query = "SELECT * FROM Teacher_records"
+        query = "SELECT * FROM Teacher_records ORDER BY ID"
         cursor.execute(query)
 
         # Fetch column names
@@ -324,7 +324,7 @@ def db_fetch_all_timetable_records():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
-        query = "SELECT * FROM Time_table"
+        query = "SELECT * FROM Time_table ORDER BY Sr_no"
         cursor.execute(query)
 
         # Fetch column names
@@ -422,7 +422,7 @@ def db_fetch_all_calendar_events():
     connection = get_db_connection()
     cursor = connection.cursor()
     try:
-        query = "SELECT * FROM Calendar"
+        query = "SELECT * FROM Calendar ORDER BY Sr_no"
         cursor.execute(query)
 
         # Fetch column names
@@ -508,7 +508,7 @@ def db_fetch_students_from_class(standard: str, section: str):
     cursor = connection.cursor()
     try:
         table_name = f"class{standard}{section}"
-        query = f"SELECT roll_number, name FROM {table_name}"
+        query = f"SELECT roll_number, name FROM {table_name} ORDER BY roll_number"
         cursor.execute(query)
 
         # Fetch column names
@@ -600,7 +600,7 @@ def db_get_attendance(standard: str, section: str):
         table_name = f"class{standard}{section}"
 
         # Query to fetch all columns from the table
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {table_name} ORDER BY roll_number"
         cursor.execute(query)
 
         # Fetch column names
@@ -630,7 +630,7 @@ def db_get_marks(standard: str, section: str):
         table_name = f"class{standard}{section}"
 
         # Query to fetch all columns from the table
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {table_name} ORDER BY roll_number"
         cursor.execute(query)
 
         # Fetch column names
