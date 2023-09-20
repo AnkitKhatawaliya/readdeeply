@@ -8,7 +8,7 @@ from datetime import datetime
 db_pool = psycopg2.pool.SimpleConnectionPool(
     minconn=1,
     maxconn=10,  # Adjust this value based on your needs
-    dsn="postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-hidden-fire-57816100.us-east-2.aws.neon.tech/neondb"
+    dsn="postgres://ankitkmr1709:y4Zdg7GMxRVH@ep-young-sun-59295475.us-east-2.aws.neon.tech/neondb"
 )
 
 
