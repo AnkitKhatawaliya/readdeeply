@@ -1,15 +1,13 @@
-from fastapi import APIRouter, HTTPException , status
+from fastapi import APIRouter, HTTPException, status
 from typing import List, Dict, Union
 from schemas.schemas import Homework
 from database import db_validate_teacher_credentials, db_fetch_students_from_class, db_fetch_all_calendar_events, \
     db_fetch_timetable_records_by_standard_section
-from database import db_table_exists , db_fetch_homework_by_standard_section_subject
+from database import db_table_exists, db_fetch_homework_by_standard_section_subject
 from database import db_add_marks, db_get_marks, db_mark_student_attendance, db_get_attendance
 from database import db_create_homework_table, db_add_class_homework, db_update_homework
 
-
 router = APIRouter()
-
 
 
 @router.get("/isteacher/{teacher_id}/{password}")
@@ -38,11 +36,12 @@ def get_class_records(standard: str, section: str):
 
     return formatted_records
 
+
 @router.post("/mark_attendance/{standard}/{section}")
 def mark_attendance(
-    standard: str,
-    section: str,
-    attendance_data: dict
+        standard: str,
+        section: str,
+        attendance_data: dict
 ):
     if not db_table_exists(f"class{standard}{section}"):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Class records not found")
@@ -63,6 +62,7 @@ def add_marks(standard: str, section: str, subject: str, marks_data: List[Dict[s
         raise HTTPException(status_code=500, detail="Error adding marks to the database")
 
     return response
+
 
 @router.get("/get_attendance/{standard}/{section}")
 def get_attendance(standard: str, section: str):
@@ -85,19 +85,23 @@ def create_homework_table():
     response = db_create_homework_table()
     return response
 
+
 @router.post("/add_class_hw/{standard}/{section}/{subject}")
 def add_class_homework(standard: str, section: str, subject: str):
-    homework_data = Homework(standard=standard, section=section, subject=subject, monday="yet to be added", tuesday="yet to be added", wednesday="yet to be added", thursday="yet to be added", friday="yet to be added", saturday="yet to be added")
+    homework_data = Homework(standard=standard, section=section, subject=subject, monday="yet to be added",
+                             tuesday="yet to be added", wednesday="yet to be added", thursday="yet to be added",
+                             friday="yet to be added", saturday="yet to be added")
     response = db_add_class_homework(homework_data)
     return response
 
+
 @router.post("/update_homework/{standard}/{section}/{subject}/{day}/{text}")
 def update_homework(
-    standard: str,
-    section: str,
-    subject: str,
-    day: str,
-    text: str
+        standard: str,
+        section: str,
+        subject: str,
+        day: str,
+        text: str
 ):
     # Call your database update function here using the data from the URL parameters
     response = db_update_homework(standard, section, subject, day, text)
@@ -108,13 +112,13 @@ def update_homework(
     return response
 
 
-
 @router.get("/fetch_homework/{standard}/{section}/{subject}")
 def fetch_homework_by_standard_section_subject(standard: str, section: str, subject: str):
     homework_data = db_fetch_homework_by_standard_section_subject(standard, section, subject)
     if "error" in homework_data:
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
+
 
 @router.get("/fetchcalendarevents")
 def fetch_calendar_events():
@@ -128,4 +132,3 @@ def fetch_timetable_records_by_standard_section(standard: str, section: str):
     if not timetables:
         raise HTTPException(status_code=404, detail="No matching records found")
     return timetables
-

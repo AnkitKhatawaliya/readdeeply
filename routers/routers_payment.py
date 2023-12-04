@@ -21,6 +21,7 @@ def add_student_fee_record(adm_no: str, standard: str, fees: str):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=response["error"])
     return {"message": "Student fee record added successfully."}
 
+
 @router.get("/getstatusof/{adm_no}/{month}")
 def get_fee_status(adm_no: str, month: str):
     response = db_get_fee_status(adm_no, month)
@@ -29,7 +30,9 @@ def get_fee_status(adm_no: str, month: str):
     elif "message" in response:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["message"])
     return response
-#payment endpoints
+
+
+# payment endpoints
 
 @router.post("/createpaymenttable", status_code=status.HTTP_201_CREATED)
 def create_payment_table():
@@ -39,14 +42,16 @@ def create_payment_table():
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.post("/transactionstarted/{order_ID}/{adm_no}/{fee_amount}/{date_created}/{date_modified}/{transaction_ID}", status_code=status.HTTP_201_CREATED)
+
+@router.post("/transactionstarted/{order_ID}/{adm_no}/{fee_amount}/{date_created}/{date_modified}/{transaction_ID}",
+             status_code=status.HTTP_201_CREATED)
 def transaction_started(
-    order_ID: str,
-    adm_no: str,
-    fee_amount: str,
-    date_created: str,
-    date_modified: str,
-    transaction_ID: str
+        order_ID: str,
+        adm_no: str,
+        fee_amount: str,
+        date_created: str,
+        date_modified: str,
+        transaction_ID: str
 ):
     try:
         # Create Order entry with order_ID, date_created, and date_modified
@@ -59,6 +64,7 @@ def transaction_started(
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
 
+
 @router.post("/transactionSuccessful/{order_id}/{payment_signature}/{staitus}", status_code=status.HTTP_200_OK)
 def transaction_successful(order_id: str, payment_signature: str, staitus: str):
     try:
@@ -69,6 +75,7 @@ def transaction_successful(order_id: str, payment_signature: str, staitus: str):
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
 
+
 @router.get("/getstudentfee/{adm_no}/{month}")
 def get_student_fee(adm_no: str, month: str):
     response = db_get_student_fee(adm_no, month)
@@ -77,6 +84,7 @@ def get_student_fee(adm_no: str, month: str):
     elif "message" in response:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=response["message"])
     return response
+
 
 @router.post("/updatefeestatus/{adm_no}/{month}/{date}", status_code=status.HTTP_200_OK)
 def update_fee_status(adm_no: str, month: str, date: str):

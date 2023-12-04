@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel
 
 
@@ -49,6 +48,7 @@ class Timetable(BaseModel):
     class Config:
         orm_mode = True
 
+
 class CalendarEvent(BaseModel):
     sr_no: int
     date: str
@@ -58,6 +58,7 @@ class CalendarEvent(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class Homework(BaseModel):
     standard: str
@@ -74,13 +75,13 @@ class Homework(BaseModel):
         orm_mode = True
 
 
-
 class OrderCreate(BaseModel):
     order_ID: str
     adm_no: str
     fee_amount: str
     date_created: str
     date_modified: str
+
 
 class TransactionUpdate(BaseModel):
     transaction_ID: str

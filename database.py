@@ -1,7 +1,7 @@
-import psycopg2
 from psycopg2 import pool
 from schemas.schemas import ClassTable, Teacher, Timetable, CalendarEvent
 from datetime import datetime
+import psycopg2
 
 
 # Create a connection pool

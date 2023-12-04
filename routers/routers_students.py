@@ -4,6 +4,7 @@ from database import db_validate_student, db_get_student_info, db_fetch_homework
 
 router = APIRouter()
 
+
 @router.get("/validate_student/{standard}/{section}/{roll_number}/{password}", status_code=status.HTTP_200_OK)
 def validate_student_login(standard: str, section: str, roll_number: str, password: str):
     roll_number_int = int(roll_number)  # Convert the string to an integer
@@ -14,6 +15,7 @@ def validate_student_login(standard: str, section: str, roll_number: str, passwo
         return {"message": "Student login successful"}
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid student credentials")
+
 
 @router.get("/needstudentinfo/{standard}/{section}/{roll_number}")
 def get_student_info(standard: str, section: str, roll_number: str):
@@ -32,10 +34,12 @@ def fetch_homework_by_standard_section(standard: str, section: str):
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
 
+
 @router.get("/fetchcalendarevents")
 def fetch_calendar_events():
     events = db_fetch_all_calendar_events()
     return events
+
 
 @router.get("/fetchtimetablerecords/{standard}/{section}")
 def fetch_timetable_records_by_standard_section(standard: str, section: str):
@@ -59,4 +63,3 @@ def get_marks(standard: str, section: str):
     if isinstance(marks_records, dict) and "error" in marks_records:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
     return marks_records
-

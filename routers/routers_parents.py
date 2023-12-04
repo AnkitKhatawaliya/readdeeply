@@ -5,6 +5,7 @@ from database import db_validate_parent, db_get_student_info, db_fetch_homework_
 
 router = APIRouter()
 
+
 @router.get("/validate_parent/{standard}/{section}/{roll_number}/{password}", status_code=status.HTTP_200_OK)
 def validate_parent_login(standard: str, section: str, roll_number: str, password: str):
     roll_number_int = int(roll_number)  # Convert the string to an integer
@@ -16,6 +17,7 @@ def validate_parent_login(standard: str, section: str, roll_number: str, passwor
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid student credentials")
 
+
 @router.get("/needstudentinfo/{standard}/{section}/{roll_number}")
 def get_student_info(standard: str, section: str, roll_number: str):
     roll_number_int = int(roll_number)  # Convert the string to an integer
@@ -26,17 +28,19 @@ def get_student_info(standard: str, section: str, roll_number: str):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Student data not found")
 
 
-@router.get("/fetch_homework/{standard}/{section}",)
+@router.get("/fetch_homework/{standard}/{section}", )
 def fetch_homework_by_standard_section(standard: str, section: str):
     homework_data = db_fetch_homework_by_standard_section(standard, section)
     if "error" in homework_data:
         raise HTTPException(status_code=500, detail=homework_data["error"])
     return homework_data
 
+
 @router.get("/fetchcalendarevents")
 def fetch_calendar_events():
     events = db_fetch_all_calendar_events()
     return events
+
 
 @router.get("/fetchtimetablerecords/{standard}/{section}")
 def fetch_timetable_records_by_standard_section(standard: str, section: str):
@@ -60,6 +64,3 @@ def get_marks(standard: str, section: str):
     if isinstance(marks_records, dict) and "error" in marks_records:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=marks_records["error"])
     return marks_records
-
-
-
